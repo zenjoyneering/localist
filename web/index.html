@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Localist</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width; initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="lib/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
+
+        <script type="text/javascript" src="lib/js/jquery-1.7.2.min.js">
+        </script>
+        <script type="text/javascript" src="lib/js/bootstrap.min.js">
+        </script>
+        <script type="text/javascript" src="lib/js/moment.min.js">
+        </script>
+        <script type="text/javascript" src="lib/js/moment.lang.ru.js">
+        </script>
+        <script type="text/javascript" src="lib/js/hogan-2.0.0.min.js">
+        </script>
+        <script type="text/javascript" src="lib/js/jquery.hogan.js">
+        </script>
+
+
+        <script type="text/javascript" src="wuxels.js">
+        </script>
+        <script type="text/javascript" src="app.js">
+        </script>
+        <script type="text/javascript" src="ui.js">
+        </script>
+        <script type="text/javascript" src="service.js">
+        </script>
+        <script type="text/javascript" src="locale.js">
+        </script>
+
+
+    </head>
+    <body>
+        <section class="container-fluid" id="progress" data-unit="progress">
+            <div class="page-header row-fluid">
+                <h3 class="span10">
+                    Translation workspace
+                        <div class="progress">
+                            <div class="bar" style="width: {{progress}}%"></div>
+                        </div>
+                </h3>
+                <div class="span2 userbox">
+                    <h4>Hello, {{user.name}}!</h4>
+                    <ul>
+                        <li><a href="#">Change profile</a></li>
+                        <li><a href="#logout" data-ui-state="logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+            <table class="locale-list table table-striped">
+                <thead>
+                    <tr>
+                        <th>Language</th>
+                        <th>Progress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- {{#langs}} -->
+                    <tr>
+                        <td>
+                            <a href="#domains?locale={{code}}" 
+                                data-ui-state="domains" 
+                                data-locale="{{code}}">
+                                {{locale.name}} ({{locale.localName}})
+                            </a>
+                        </td>
+                        <td>
+                            <div class="progress progress-success">
+                                <div class="bar" style="width: {{progress}}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- {{/langs}} -->
+                </tbody>
+            </table>
+            
+        </section>
+        <section class="container-fluid" id="domains" data-unit="domains">
+            <div class="page-header row-fluid">
+                <h3 class="span10">
+                    Translating 
+                        from
+                        <a href="#">{{fromLocale.name}}</a>
+                        to 
+                        <span class="dropdown">
+                            <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                                {{toLocale.name}}
+                            </a> 
+                            <ul class="dropdown-menu">
+                                <li><a href="#">francaise</a></li>
+                                <li><a href="#">espanol</a></li>
+                            </ul>
+                        </span>
+                        <div class="progress">
+                            <div class="bar" style="width: {{progress}}%"></div>
+                        </div>
+                </h3>
+                <div class="span2 userbox">
+                    <h4>Hello, {{user.name}}!</h4>
+                    <ul>
+                        <li><a href="#">Change profile</a></li>
+                        <li><a href="#logout" data-ui-state="logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+            <table class="domain-list table table-striped">
+                <thead>
+                    <tr>
+                        <th>Domain</th>
+                        <th>Progress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- {{#domains}} -->
+                    <tr>
+                        <td>
+                            <a href="#translate/{{title}}?from={{localeCode.from}}&to={{localeCode.to}}" 
+                                data-ui-state="translate" data-domain="{{title}}"
+                                data-from="{{localeCode.from}}" data-to="{{localeCode.to}}">
+                                {{title}}
+                            </a>
+                            <span>(x obsolete, y discarded, z unreviewed messages)
+                        </td>
+                        <td>
+                            <div class="progress progress-success">
+                                <div class="bar" style="width: {{progress}}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- {{/domains}} -->
+                </tbody>
+            </table>
+        </section>
+
+        <section class="container-fluid" id="translation">
+            <div class="page-header row-fluid">
+                <!-- {{#translation}} -->
+                <h3 class="span7">
+                    Translating 
+                    <a href="#domains">{{domain}}</a>
+                    from
+                    <a href="#">{{fromLocale.name}}</a>
+                    to 
+                    <span class="dropdown">
+                        <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                            {{toLocale.name}}
+                        </a> 
+                        <ul class="dropdown-menu">
+                            <li><a href="#">francaise</a></li>
+                            <li><a href="#">espanol</a></li>
+                        </ul>
+                    </span>
+                    <div class="progress">
+                        <div class="bar" style="width: {{progress}}%"></div>
+                    </div>
+                </h3>
+                <ul class="stats span3">
+                    <li><a href="#"><b>{{untranslated}}</b> untranslated messages</a></li>
+                    <li><a href="#"><b>{{unapproved}}</b> unapproved messages</a></li>
+                    <li><a href="#"><b>{{obsolete}}</b> fuzzy (obsolete) messages</a></li>
+                </ul>
+                <div class="span2 userbox">
+                    <h4>Hello, {{user.name}}!</h4>
+                    <ul>
+                        <li><a href="#">Change profile</a></li>
+                        <li><a href="#logout" data-ui-state="logout">Logout</a></li>
+                    </ul>
+                </div>
+                <!-- {{/translation}} -->
+            </div>
+
+            <div class="translate row-fluid">
+                <div class="span10"><table class="trans table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Source ({{fromLocale.name}})</th>
+                            <th>Translation ({{toLocale.name}})</th>
+                            <!--
+                            <th>Статус</th>
+                            -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- {{#translation.from}} -->
+                        <!-- {{#value.i18n.message}} -->
+                        <tr>
+                            <td>
+                                {{value.i18n.message}}
+                                <div class="key">
+                                    <small><b>key: </b>{{value.i18n.key}}</small>
+                                </div>
+                            </td>
+                            <!-- {{#value}} -->
+                            <td class="edit">
+                                <textarea data-source-id="{{_id}}"
+                                    data-source-rev="{{_rev}}"
+                                    data-key="{{i18n.key}}"
+                                    data-translation-id="{{translateId}}"
+                                    >{{translate}}</textarea>
+                            </td>
+                            <!-- {{/value}} -->
+                        </tr>
+                        <!-- {{/value.i18n.message}} -->
+                 
+                        <!-- {{#value.i18n.plurals}} -->
+                        <tr>
+                            <td>
+                                <b>Plural forms</b>
+                                {{#pluralsFrom}}
+                                    {{#forms}}
+                                    <div><b>{{quantity}}: </b>{{text}}</p></div>
+                                    {{/forms}}
+                                {{/pluralsFrom}}
+                                <div class="key">
+                                    <small><b>key: </b>{{value.i18n.key}}</small>
+                                </div>
+                            </td>
+                            <!-- {{#value}} -->
+                            <td class="edit-plural" data-source-id="{{_id}}"
+                                data-source-rev="{{_rev}}"
+                                data-key="{{i18n.key}}"
+                                data-translation-id="{{translateId}}">
+                                {{#pluralsTo}}
+                                    {{#forms}}
+                                        <b>{{quantity}}:</b>
+                                        <textarea data-quantity="{{quantity}}">{{text}}</textarea>
+                                    {{/forms}}
+                                {{/pluralsTo}}
+                            </td>
+                            <!-- {{/value}} -->
+                        </tr>
+                        <!-- {{/value.i18n.plurals}} -->
+                        <!-- {{/translation.from}} -->
+                    </tbody>
+                </table></div>
+
+                <div class="glossary span2">
+                    <h5>Glossary</h5>
+                    <dl>
+                        <dt>Term</dt>
+                        <dd>Definition</dd>
+                    </dl>
+                </div>
+            </div>
+       </section>
+        
+        <section id="login" data-unit="login">
+            <form class="login-form horizontal">
+                <p class="alert alert-info">
+                    You should log in to use this service. 
+                    If you have no account, you can create it right now!
+                </p>
+                <label>Login: <input type="text" name="login"/></label>
+                <label>Password: <input type="password" name="password"/></label>
+                <div class="form-actions">
+                    <button class="btn btn-large btn-primary" data-action="signin">Login</button>
+                    <span> or </span>
+                    <button class="btn btn-large" disabled>Create an account</button>
+                </div>
+            </form>
+        </section>
+    </body>
+</html>
+

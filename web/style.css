@@ -1,0 +1,77 @@
+body {
+    background: url("i/lightpaperfibers.png") 0 0 repeat;
+}
+
+.page-header  h3{
+    padding-right: 2.12766%;
+    border-right: solid 2px #333333;
+}
+
+.stats {
+    padding-bottom: 4px;
+    border-right: solid 2px #333333;
+}
+
+.stats li {
+    margin-left: 10px;
+}
+
+.trans td {
+    width: 50%;
+}
+
+.trans .key{
+    margin-top: 15px;
+    font-size: 90%;
+    color: #505050;
+}
+
+table .edit, table .edit-plural{
+    padding: 0;
+}
+
+.edit textarea, .edit-plural textarea{
+    display: block;
+    margin: 0;
+    width: 99.7%;
+    height: 99.9%;
+    /*
+    border: solid ;
+    border-radius: 0;
+    */
+    background-color: transparent;
+}
+
+.progress {
+    margin: 5px 0 !important;
+}
+
+.userbox {
+}
+
+.login-form {
+    width: 400px;
+    margin: 50px auto;
+    padding: 10px;
+    border-radius: 5px;
+    border: solid 1px #dedede;
+    background-color: #f5f5f5;
+}
+
+.login-form label {
+    position: relative;
+    margin-bottom: 10px;
+    line-height: 18px;
+    height: 26px;
+}
+
+.login-form input {
+    position: absolute;
+    top: 0;
+    left: 130px;
+    width: 260px;
+}
+
+.login-form .form-actions {
+    padding-left: 130px;
+}

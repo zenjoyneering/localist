@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Localist</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width; initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="lib/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
+
+        <script type="text/javascript" src="lib/js/jquery-1.7.2.min.js">
+        </script>
+        <script type="text/javascript" src="lib/js/bootstrap.min.js">
+        </script>
+        <script type="text/javascript" src="lib/js/moment.min.js">
+        </script>
+        <script type="text/javascript" src="lib/js/moment.lang.ru.js">
+        </script>
+        <script type="text/javascript" src="lib/js/hogan-1.0.5.min.js">
+        </script>
+        <script type="text/javascript" src="lib/js/jquery.hogan.js">
+        </script>
+
+
+        <script type="text/javascript" src="ui.js">
+        </script>
+
+
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div class="page-header row-fluid">
+                <h1 class="span7">
+                    Localist
+                    <small>Translating 
+                    <a href="#">Demo app</a>
+                    from
+                    <a href="#">russian</a>
+                    to 
+                    <span class="dropdown">
+                        <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                            english
+                        </a> 
+                        <ul class="dropdown-menu">
+                            <li><a href="#">francaise</a></li>
+                            <li><a href="#">espanol</a></li>
+                        </ul>
+                    </span>
+                    <div class="progress">
+                        <div class="bar" style="width: 49%"></div>
+                    </div>
+                </small>
+                </h1>
+                <ul class="stats span3">
+                    <li><a href="#"><b>16</b> untranslated messages</a></li>
+                    <li><a href="#"><b>24</b> unapproved messages</a></li>
+                    <li><a href="#"><b>6</b> fuzzy (obsolete) messages</a></li>
+                </ul>
+                <div class="span2 userbox">
+                    <h4>Hello, username!</h4>
+                    <ul>
+                        <li><a href="#">Change profile</a></li>
+                        <li><a href="#">Logout</a></li>
+                    </ul>
+
+                    <!--
+                    <div class="dropdown">
+                        <h4 class="dropdown-toggle" data-toggle="dropdown">
+                            Hello, 
+                            <a href="#">
+                                username!
+                                <b class="caret"></b>
+                            </a>
+                        </h4>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Change profile</a></li>
+                            <li><a href="#">Logout</a></li>
+                        </ul>
+                    </div>
+
+                    <h2>15678 chars</h2>
+                    -->
+                </div>
+            </div>
+
+            <section class="translate">
+                <table class="trans table">
+                    <thead>
+                        <tr>
+                            <th>Русский</th>
+                            <th>Английский</th>
+                            <th>Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="alert alert-success">
+                            <td>Lorem impsum и так далее</td>
+                            <td class="edit"><textarea placeholder="Lorem ipsum"></textarea></td>
+                            <td><i class="icon-ok"></i> Approved</td>
+                        </tr>
+                        <tr>
+                            <td>Lorem impsum и так далее</td>
+                            <td class="edit"><textarea placeholder="Lorem ipsum"></textarea></td>
+                            <td>
+                                <button class="btn btn-success">Approve</button>
+                                <button class="btn btn-danger">Discard</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Lorem impsum и так далее</td>
+                            <td class="edit"><textarea placeholder="Lorem ipsum"></textarea></td>
+                            <td><i class="icon-refresh"></i> Saving...</td>
+                        </tr>
+                        <tr class="alert alert-error">
+                            <td>Lorem impsum и так далее</td>
+                            <td class="edit"><textarea placeholder="Lorem ipsum"></textarea></td>
+                            <td>Discarded</td>
+                        </tr>
+                        <tr class="alert alert-warning">
+                            <td>Lorem impsum и так далее</td>
+                            <td class="edit"><textarea placeholder="Lorem ipsum"></textarea></td>
+                            <td>
+                                Fuzzy (obsolete)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Lorem impsum и так далее</td>
+                            <td class="edit"><textarea placeholder="Lorem ipsum"></textarea></td>
+                            <td>Waiting for approve.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+       </div>
+        
+    </body>
+</html>
+
