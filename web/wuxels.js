@@ -20,13 +20,38 @@
 
     webapp.run = function(){
         webapp.auth();
-    }
+    };
 
     webapp.fire = function(event, eventData){
         if (webapp.events[event]){
             webapp.events[event](eventData);
+        }
+    };
+
+    webapp.state = function(url){
+        var options = {};
+        var state;
+        var sep = location.hash.indexOf('?');
+        var i;
+        if (sep > 0){
+            var optString = location.hash.substr(sep+1);
+            var optParts = optString.split('&');
+            var opts;
+            for (i in optParts){
+                opts = optParts[i].split("=");
+                if (opts.length == 2){
+                    options[opts[0]] = opts[1];
+                }
+            }
+            state = location.hash.substr(1, sep-1);
+        } else if (state){
+            state = location.hash.substr(1);
+        }
+        return {
+            hash: state,
+            args: options
         };
-    }
+    };
 
     window.web = window.web || {};
     window.web.app = webapp;
@@ -57,12 +82,23 @@ $(function(){
         event.preventDefault();
     });
     $(window).on("click", "a[data-ui-state]", {}, function(event){
+        /*
         var $this = $(this);
+        console.log(web.app.state());
         var state = $this.data("uiState");
         if (web.app.ui[state]){
-            history.pushState({}, "", $this.attr("href"));
+            history.pushState(null, "", $this.attr("href"));
             web.app.ui[state]($this.data());
-            event.preventDefault();
+            //event.preventDefault();
+        }
+        */
+    });
+    $(window).on("popstate", function(ev){
+        var state = web.app.state();
+        var hash = state.hash || web.app.ui['default'];
+        if (web.app.ui[hash]){
+            //history.pushState(null, "", $this.attr("href"));
+            web.app.ui[hash](state.args);
         }
     });
     webapp.run();

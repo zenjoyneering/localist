@@ -83,5 +83,55 @@ var Locale = (function(){
         }
     };
 
+    locales.de = {
+        name: "Deutch",
+        localName: "Deutch",
+        code: "de_DE",
+        pluralForms: [quantity.ONE, quantity.OTHER],
+        plural: function(n) {
+            return n != 1;
+        }
+    };
+
+    locales.fr = {
+        name: "French",
+        localName: "Français",
+        code: "fr_FR",
+        pluralForms: [quantity.ONE, quantity.OTHER],
+        plural: function(n){
+            return n > 1;
+        }
+    };
+
+    locales.it = {
+        name: "Italian",
+        localName: "Italiano",
+        code: "it_IT",
+        pluralForms: [quantity.ONE, quantity.OTHER],
+        plural: function(n){
+            return n != 1;
+        }
+    };
+
+    locales.tr = {
+        name: "Turkish",
+        localName: "Türk",
+        code: "tr_TR",
+        pluralForms: [quantity.ONE, quantity.OTHER],
+        plural: function(n){
+            return n > 1;
+        }
+    };
+
+    locales.ko = {
+        name: "Korean",
+        localName: "한국의",
+        code: "ko_KO",
+        pluralForms: [quantity.OTHER],
+        plural: function(n){
+            return 0;
+        }
+    };
+
     return Locale;
 })();

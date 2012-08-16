@@ -17,4 +17,4 @@ backend:
 	./couchdb/coucher.py push couchdb/_design ${DB_NAME}
 
 push:
-	./utils/droidxml.py push ${DB_NAME} sample_data/res_astrid
+	./utils/droidxml.py push ${DB_NAME} sample_data/res

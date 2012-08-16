@@ -2,6 +2,7 @@ moment.lang('ru');
 
 web.app({
     ui: {
+        "default": "progress",
         init: function(){
             $(window).on("change", ".edit textarea", {}, function(){
                 var $this = $(this);

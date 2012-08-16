@@ -46,6 +46,11 @@ web.app({
                     translationProgress += message_count;
                 }
 
+                // !!!!!! @FIXME: wild hack
+                sourceLocale.code = "en";
+                sourceLocale.messages = stats["en"].message_count;
+
+
                 for (var code in stats){
                     var progress = stats[code] ?
                         stats[code].message_count*100/sourceLocale.messages : 0;

@@ -32,6 +32,33 @@ class DroidXML(object):
             i18n['source'] = source
         return i18n
 
+    def already_uploaded(self, url, lang="en"):
+        """Download already uploaded strings and return keymap"""
+        db_url = urlsplit(url)
+        http = httplib.HTTPConnection(db_url.hostname, db_url.port or 80)
+        options = urlencode({
+            "reduce": "false",
+            "startkey": '["en"]',
+            "endkey": '["en", {}]'
+        })
+        view = os.path.join(
+            db_url.path,
+            "_design/i18n/_view/translations?%s" % options
+        )
+        http.request("GET", view)
+        response = http.getresponse()
+        data = json.loads(response.read())
+        http.close()
+        keymap = {}
+        for row in data['rows']:
+            key = "{form}:{domain}:{key}".format(
+                form='message' in row['value']['i18n'] and 'str' or 'pl',
+                domain=row['value']['i18n']['domain'],
+                key=row['value']['i18n']['key']
+            )
+            keymap[key] = row['value']
+        return keymap
+
     def resources(self, values, lang="en_US", source_strings={}):
         """Extract resources from given dir for given language code"""
         search = os.path.join(values, self.STRINGS)
@@ -88,37 +115,72 @@ class DroidXML(object):
     def push(self, url):
         """Push all resources (including translated) to db"""
         db_url = urlsplit(url)
-        values = os.path.join(self.basepath, self.SOURCE)
-        docs = map(lambda i18n: {"i18n": i18n}, self.resources(values, "en"))
-        bulk = json.dumps({"docs": docs})
-        headers = {"Content-Type": "application/json"}
-
         http = httplib.HTTPConnection(db_url.hostname, db_url.port or 80)
         bulk_docs_url = os.path.join(db_url.path, "_bulk_docs")
-        http.request("POST", bulk_docs_url, body=bulk, headers=headers)
-        response = http.getresponse()
-        meta_data = json.loads(response.read())
-        print("{0} msgs loaded".format(len(meta_data)))
-        http.close()
+        headers = {"Content-Type": "application/json"}
 
-        # map each strings key do a doc's id and rev
-        sources = dict(map(self.map_meta, docs, meta_data))
+        values = os.path.join(self.basepath, self.SOURCE)
+        docs = map(lambda i18n: {"i18n": i18n}, self.resources(values, "en"))
 
-        map_domain = lambda doc: (doc['i18n']['key'], doc['i18n']['domain'])
-        domain_lookup = dict(map(map_domain, docs))
-
-        for (locale, values_dir) in self.translated():
-            docs = map(
-                lambda i18n: {"i18n": i18n},
-                self.translations(values_dir, locale, sources, domain_lookup)
-            )
-
+        uploaded = self.already_uploaded(url, "en")
+        if uploaded:
+            docs_for_update = []
+            for doc in docs:
+                i18n = doc['i18n']
+                key = "{form}:{domain}:{key}".format(
+                    form='message' in i18n and 'str' or 'pl',
+                    domain=i18n['domain'],
+                    key=i18n['key']
+                )
+                if not key in uploaded:
+                    # this is a fresh key
+                    docs_for_update.append({"i18n": i18n})
+                elif 'message' in i18n and i18n['message'] != uploaded[key]['i18n']['message']:
+                    # update a message
+                    doc = uploaded[key]
+                    doc['i18n']['message'] = i18n['message']
+                    docs_for_update.append(doc)
+                elif 'plurals' in i18n:
+                    # plural, and key already exists
+                    stored = uploaded[key]['i18n']['plurals'].values()
+                    stored.sort()
+                    fresh = i18n['plurals'].values()
+                    fresh.sort()
+                    if stored != fresh:
+                        doc = uploaded[key]
+                        doc['i18n']['plurals'] = i18n['plurals']
+                        docs_for_update.append(doc)
+            bulk = json.dumps({"docs": docs_for_update})
+            http.request("POST", bulk_docs_url, body=bulk, headers=headers)
+            response = http.getresponse()
+            meta_data = json.loads(response.read())
+            print("{0} msgs loaded".format(len(meta_data)))
+            http.close()
+        else:
             bulk = json.dumps({"docs": docs})
             http.request("POST", bulk_docs_url, body=bulk, headers=headers)
             response = http.getresponse()
             meta_data = json.loads(response.read())
+            print("{0} msgs loaded".format(len(meta_data)))
             http.close()
-            print("{0} {1} translations loaded".format(len(meta_data), locale))
+
+            # map each strings key do a doc's id and rev
+            sources = dict(map(self.map_meta, docs, meta_data))
+
+            map_domain = lambda doc: (doc['i18n']['key'], doc['i18n']['domain'])
+            domain_lookup = dict(map(map_domain, docs))
+
+            for (locale, values_dir) in self.translated():
+                docs = map(
+                    lambda i18n: {"i18n": i18n},
+                    self.translations(values_dir, locale, sources, domain_lookup)
+                )
+                bulk = json.dumps({"docs": docs})
+                http.request("POST", bulk_docs_url, body=bulk, headers=headers)
+                response = http.getresponse()
+                meta_data = json.loads(response.read())
+                http.close()
+                print("{0} {1} translations loaded".format(len(meta_data), locale))
 
     def pull(self, url):
         """Pull all translations from db and store it"""
