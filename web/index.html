@@ -35,6 +35,47 @@
 
     </head>
     <body>
+        <section class="container-fluid" id="projects" data-unit="projects">
+            <div class="page-header row-fluid">
+                <h3 class="span10">
+                    Translation workspace
+                        <div class="progress">
+                            <div class="bar" style="width: {{progress}}%"></div>
+                        </div>
+                </h3>
+                <div class="span2 userbox">
+                    <h4>Hello, {{user.name}}!</h4>
+                    <ul>
+                        <li><a href="#">Change profile</a></li>
+                        <li><a href="#logout" data-ui-state="logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+            <table class="project-list table table-striped">
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Overall translation progress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- {{#projects}} -->
+                    <tr>
+                        <td>
+                            <a href="#progress?project={{name}}">
+                                {{name}}
+                            </a>
+                        </td>
+                        <td>
+                            <div class="progress progress-success">
+                                <div class="bar" style="width: {{progress}}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- {{/projects}} -->
+                </tbody>
+            </table>
+        </section>
         <section class="container-fluid" id="progress" data-unit="progress">
             <div class="page-header row-fluid">
                 <h3 class="span10">
@@ -62,9 +103,7 @@
                     <!-- {{#langs}} -->
                     <tr>
                         <td>
-                            <a href="#domains?locale={{code}}" 
-                                data-ui-state="domains" 
-                                data-locale="{{code}}">
+                            <a href="#domains?project={{project}}&locale={{code}}">
                                 {{locale.name}} ({{locale.localName}})
                             </a>
                         </td>
@@ -88,7 +127,7 @@
                         <a href="#">{{fromLocale.name}}</a>
                         -->
                         to 
-                        <a href="#progress">
+                        <a href="#progress?project={{project}}">
                             {{toLocale.name}}
                         </a> 
                         <div class="progress">
@@ -114,9 +153,7 @@
                     <!-- {{#domains}} -->
                     <tr>
                         <td>
-                            <a href="#translate?domain={{title}}&from={{localeCode.from}}&to={{localeCode.to}}" 
-                                data-ui-state="translate" data-domain="{{title}}"
-                                data-from="{{localeCode.from}}" data-to="{{localeCode.to}}">
+                            <a href="#translate?project={{project}}&domain={{title}}&from={{localeCode.from}}&to={{localeCode.to}}">
                                 {{title}}
                             </a>
                             <span>(x obsolete, y discarded, z unreviewed messages)
@@ -137,13 +174,15 @@
                 <!-- {{#translation}} -->
                 <h3 class="span7">
                     Translating 
-                    <a href="#domains?locale={{localeCode.to}}">{{domain}}</a>
+                    <a href="#domains?project={{project}}&locale={{localeCode.to}}">
+                        {{domain}}
+                    </a>
                     <!--
                     from
                     <a href="#">{{fromLocale.name}}</a>
                     -->
                     to 
-                    <a href="#progress">
+                    <a href="#progress?project={{project}}">
                         {{toLocale.name}}
                     </a> 
                     <div class="progress">
@@ -178,27 +217,27 @@
                     </thead>
                     <tbody>
                         <!-- {{#translation.from}} -->
-                        <!-- {{#value.i18n.message}} -->
+                        <!-- {{#value.message}} -->
                         <tr>
                             <td>
-                                {{value.i18n.message}}
+                                {{value.message}}
                                 <div class="key">
-                                    <small><b>key: </b>{{value.i18n.key}}</small>
+                                    <small><b>key: </b>{{value.name}}</small>
                                 </div>
                             </td>
                             <!-- {{#value}} -->
                             <td class="edit">
                                 <textarea data-source-id="{{_id}}"
                                     data-source-rev="{{_rev}}"
-                                    data-key="{{i18n.key}}"
+                                    data-key="{{name}}"
                                     data-translation-id="{{translateId}}"
                                     >{{translate}}</textarea>
                             </td>
                             <!-- {{/value}} -->
                         </tr>
-                        <!-- {{/value.i18n.message}} -->
+                        <!-- {{/value.message}} -->
                  
-                        <!-- {{#value.i18n.plurals}} -->
+                        <!-- {{#value.plurals}} -->
                         <tr>
                             <td>
                                 <b>Plural forms</b>
@@ -208,13 +247,13 @@
                                     {{/forms}}
                                 {{/pluralsFrom}}
                                 <div class="key">
-                                    <small><b>key: </b>{{value.i18n.key}}</small>
+                                    <small><b>key: </b>{{value.name}}</small>
                                 </div>
                             </td>
                             <!-- {{#value}} -->
                             <td class="edit-plural" data-source-id="{{_id}}"
                                 data-source-rev="{{_rev}}"
-                                data-key="{{i18n.key}}"
+                                data-key="{{name}}"
                                 data-translation-id="{{translateId}}">
                                 {{#pluralsTo}}
                                     {{#forms}}
@@ -225,7 +264,7 @@
                             </td>
                             <!-- {{/value}} -->
                         </tr>
-                        <!-- {{/value.i18n.plurals}} -->
+                        <!-- {{/value.plurals}} -->
                         <!-- {{/translation.from}} -->
                     </tbody>
                 </table></div>

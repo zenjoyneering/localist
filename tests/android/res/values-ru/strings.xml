@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+  <string name="simple_string_one">Первая</string>
+  <plurals name="the_plurals">
+      <item quantity="one">Один</item>
+      <item quantity="few">Два-три</item>
+      <item quantity="other">Много</item>
+  </plurals>
+  <string name="simple_string_two">Вторая</string>
+</resources>

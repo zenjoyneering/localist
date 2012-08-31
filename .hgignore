@@ -1,5 +1,12 @@
 syntax:glob
-**.pyc
-**.pyo
-sample_data/*
+*.pyc
+*.pyo
+*.swp
+sample_data/
 .ropeproject
+venv
+build
+dist
+htmlcov
+*.egg-info
+*.coverage

@@ -8,13 +8,51 @@ web.app({
         init: function(){
             web.app.data.localeCode = {};
         },
+        projects: function(options, cb){
+            $.getJSON("../_design/i18n/_view/resources?group_level=2", function(data){
+                var projects = {},
+                    project, name;
+                for (var i in data.rows){
+                    name = data.rows[i].key[0];
+                    project = projects[name] || {
+                        name: name,
+                        sources: 0,
+                        total: 0,
+                        locales: 0,
+                        progress: 0
+                    };
+                    project.locales += 1;
+                    project.total += data.rows[i].value;
+                    project.sources = data.rows[i].value > project.sources ?
+                                      data.rows[i].value : project.sources;
+                    projects[name] = project;
+                }
+                web.app.data.projects = [];
+                var estimated=0, 
+                    actual=0;
+                for (name in projects){
+                    project = projects[name];
+                    project.progress = (project.total*100)/(project.sources*project.locales);
+                    web.app.data.projects.push(project);
+                    estimated += project.sources*project.locales;
+                    actual += project.total;
+                };
+                web.app.data.progress = actual*100/estimated;
+                cb();
+            });
+        },
         locales: function(options, cb){
-            $.getJSON("../_design/i18n/_view/domains?group_level=2", function(data){
+            console.log(options);
+            web.app.data.project = options.project;
+            var url = '../_design/i18n/_view/resources?group_level=3' +
+                      '&startkey=["' + web.app.data.project + '"]' +
+                      '&endkey=["' + web.app.data.project + '", {}]';
+            $.getJSON(url, function(data){
                 // data format:
                 // { rows: [
                 //      {
-                //          key: ["en_US", "domain"],    // locale code
-                //          value: [300]                 // messages count
+                //          key: ["project", "en_US", "domain"], // locale code
+                //          value: 300                           // message count
                 //      },
                 //      ...
                 // ]}
@@ -28,8 +66,8 @@ web.app({
                 var stats = {};
                 var domain, message_count, localeCode;
                 for (var i=0; i<data.rows.length; i++){
-                    localeCode = data.rows[i].key[0];
-                    domain = data.rows[i].key[1];
+                    localeCode = data.rows[i].key[1];
+                    domain = data.rows[i].key[2];
                     message_count = data.rows[i].value;
                     if (!stats[localeCode]) {
                         stats[localeCode] = {
@@ -103,9 +141,9 @@ web.app({
             web.app.data.translate = function(){
                 // this == doc with i18n
                 if (web.app.data.translation.to[this._id]){
-                    return web.app.data.translation.to[this._id].i18n.message;
+                    return web.app.data.translation.to[this._id].message;
                 } else {
-                    return this.i18n.message;
+                    return this.message;
                 }
             };
             web.app.data.translateId = function(){
@@ -122,11 +160,11 @@ web.app({
                 }
             };
             keys = [];
-            keys.push([options.from, options.domain]);
+            keys.push([options.project, options.from, options.domain]);
             //keys.push([options.domain, options.to]);
             $.ajax({
                 type: "post",
-                url: "../_design/i18n/_view/translations?&reduce=false",
+                url: "../_design/i18n/_view/resources?&reduce=false",
                 contentType: "application/json",
                 data: JSON.stringify({keys: keys}),
                 complete: function(jqXHR, textStatus){
@@ -138,11 +176,11 @@ web.app({
             });
 
             keys = [];
-            keys.push([options.to, options.domain]);
+            keys.push([options.project, options.to, options.domain]);
             //keys.push([options.domain, options.to]);
             $.ajax({
                 type: "post",
-                url: "../_design/i18n/_view/translations?&reduce=false",
+                url: "../_design/i18n/_view/resources?&reduce=false",
                 contentType: "application/json",
                 data: JSON.stringify({keys: keys}),
                 complete: function(jqXHR, textStatus){
@@ -151,7 +189,7 @@ web.app({
                     var translated = {};
                     var i18n;
                     for (var i =0; i<data.rows.length; i++){
-                        i18n = data.rows[i].value.i18n;
+                        i18n = data.rows[i].value;
                         if (i18n.source){
                             translated[i18n.source.id] = data.rows[i].value;
                         }
@@ -167,19 +205,19 @@ web.app({
             var doc;
             if (web.app.data.translation.to[sourceId]){
                 doc = web.app.data.translation.to[sourceId];
-                doc.i18n.message = text;
-                doc.i18n.source.rev = opts.sourceRev;
+                doc.message = text;
+                doc.source.rev = opts.sourceRev;
             } else {
                 doc = {
-                    i18n: {
-                        "locale": web.app.data.localeCode.to,
-                        "domain": web.app.data.translation.domain,
-                        "message": text,
-                        "key": opts.key,
-                        "source": {
-                            id: opts.sourceId,
-                            rev: opts.sourceRev
-                        }
+                    "type": "i18n.resource",
+                    "project": web.app.data.project,
+                    "locale": web.app.data.localeCode.to,
+                    "domain": web.app.data.translation.domain,
+                    "message": text,
+                    "name": opts.key,
+                    "source": {
+                        id: opts.sourceId,
+                        rev: opts.sourceRev
                     }
                 };
             }
@@ -206,19 +244,19 @@ web.app({
             if (web.app.data.translation.to[sourceId]){
                 //update
                 doc = web.app.data.translation.to[sourceId];
-                doc.i18n.source.rev = opts.sourceRev;
-                doc.i18n.plurals[opts.quantity] = text;
+                doc.source.rev = opts.sourceRev;
+                doc.plurals[opts.quantity] = text;
             } else {
                 doc = {
-                    i18n: {
-                        "locale": web.app.data.localeCode.to,
-                        "domain": web.app.data.translation.domain,
-                        "key": opts.key,
-                        "plurals": {},
-                        "source": {
-                            id: opts.sourceId,
-                            rev: opts.sourceRev
-                        }
+                    "type": "i18n.resource",
+                    "project": web.app.data.project,
+                    "locale": web.app.data.localeCode.to,
+                    "domain": web.app.data.translation.domain,
+                    "name": opts.key,
+                    "plurals": {},
+                    "source": {
+                        id: opts.sourceId,
+                        rev: opts.sourceRev
                     }
                 };
                 doc.plurals[opts.quantity] = text;

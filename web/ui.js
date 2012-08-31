@@ -2,7 +2,7 @@ moment.lang('ru');
 
 web.app({
     ui: {
-        "default": "progress",
+        "default": "projects",
         init: function(){
             $(window).on("change", ".edit textarea", {}, function(){
                 var $this = $(this);
@@ -35,9 +35,9 @@ web.app({
             web.app.data.pluralsTo = function(){
                 var context;
                 if (web.app.data.translation.to[this._id]){
-                    context = web.app.data.translation.to[this._id].i18n.plurals;
+                    context = web.app.data.translation.to[this._id].plurals;
                 } else {
-                    context = this.i18n.plurals;
+                    context = this.plurals;
                 }
                 return pluralFormsForLocale(web.app.data.toLocale, context);
             };
@@ -75,12 +75,21 @@ web.app({
                 web.app.ui.login();
             });
         }),
+        projects: web.UI(
+            {},
+            function(){
+                $("section").hide();
+                web.app.fetch("projects", {}, function(){
+                    $("#projects").hogan(web.app.data).show();
+                });
+            }
+        ),
         progress: web.UI(
             {
             }, 
-            function(){
+            function(opts){
                 $("section").hide();
-                web.app.fetch("locales", {}, function(){
+                web.app.fetch("locales", opts, function(){
                     $("#progress").hogan(web.app.data).show();
                 });
             }

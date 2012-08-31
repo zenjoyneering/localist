@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+  <string name="simple_string_one">First</string>
+  <plurals name="the_plurals">
+      <item quantity="one">One</item>
+      <item quantity="other">Many</item>
+  </plurals>
+  <string name="simple_string_two">Second</string>
+</resources>

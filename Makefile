@@ -16,5 +16,13 @@ webapp:
 backend:
 	./couchdb/coucher.py push couchdb/_design ${DB_NAME}
 
-push:
-	./utils/droidxml.py push ${DB_NAME} sample_data/res
+push: astrid k9
+
+astrid:
+	cd sample_data/astrid && localist push
+
+k9:
+	cd sample_data/k-9 && localist push
+
+test:
+	./venv/bin/python /usr/bin/nosetests --with-coverage --cover-package=localist

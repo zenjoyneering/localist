@@ -39,8 +39,8 @@ web.app({
     start: function(){
         web.app.service.init();
         web.app.ui.init();
-        history.pushState(null, null, "#progress");
-        web.app.ui.progress();
+        history.pushState(null, null, "#projects");
+        web.app.ui.projects();
         //web.app.ui.domains();
     }
 
