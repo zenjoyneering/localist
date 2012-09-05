@@ -26,7 +26,10 @@ XML_PLURALS_END = """  </plurals>\n"""
 
 def plurals_to_dict(node):
     """Extract plurals as dict from <plurals> xml node"""
-    return dict([(it.attrib['quantity'], unicode(it.text)) for it in node.iterfind('item')])
+    return dict([
+        (it.attrib['quantity'], unicode(it.text))
+        for it in node.iterfind('item')
+    ])
 
 
 class AndroidXML(object):
@@ -51,7 +54,10 @@ class AndroidXML(object):
         """Returl list of all domain files in values dir"""
         values_dir = locale and "values-{}".format(locale) or "values"
         search = os.path.join(self.basepath, values_dir, self.search)
-        return [os.path.splitext(os.path.basename(fname))[0] for fname in glob.glob(search)]
+        return [
+            os.path.splitext(os.path.basename(fname))[0]
+            for fname in glob.glob(search)
+        ]
 
     def resources(self, locale=None):
         """Iterator on resources for given language code (or from values dir)"""
@@ -85,9 +91,15 @@ class AndroidXML(object):
         xml.write(XML_START)
         for resource in resources:
             if resource.is_plural:
-                xml.write(XML_PLURALS_START.format(resource=resource).encode("utf-8"))
+                xml.write(
+                    XML_PLURALS_START.format(resource=resource).encode("utf-8")
+                )
                 for (quantity, text) in resource.plurals.items():
-                    xml.write(XML_PLURALS_ITEM.format(quantity=quantity, text=text).encode("utf-8"))
+                    xml.write(
+                        XML_PLURALS_ITEM.format(
+                            quantity=quantity, text=text
+                        ).encode("utf-8")
+                    )
                 xml.write(XML_PLURALS_END)
             else:
                 xml.write(XML_STRING.format(resource=resource).encode("utf-8"))

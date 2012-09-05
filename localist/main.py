@@ -48,19 +48,17 @@ def push(settings, url="default", *args, **kwargs):
     )
     backend = backend_module.get_backend(**backend_settings)
 
-    lookup_key = "{resource.name}:{resource.text}"
+    lookup_key = u"{resource.name}:{resource.text}"
 
-    pushed = frozenset(
-        (lookup_key.format(resource=res)
-         for res
-         in service.resources(project, source_locale)
-        )
-    )
+    pushed = frozenset((
+        lookup_key.format(resource=res)
+        for res
+        in service.resources(project, source_locale)
+    ))
     if pushed:
         # TODO: Refactor as a separate *changes* function
-        changes = (res
-            for res
-            in backend.resources()
+        changes = (
+            res for res in backend.resources()
             if lookup_key.format(resource=res) not in pushed
         )
         revisions = service.update(project, changes)
@@ -113,12 +111,11 @@ def pull(settings, url="default", *args, **kwargs):
 
     lookup_key = "{resource.domain}:{resource.name}:{resource.is_plural}"
 
-    to_translate = frozenset(
-        (lookup_key.format(resource=res)
-         for res
-         in backend.resources()
-        )
-    )
+    to_translate = frozenset((
+        lookup_key.format(resource=res)
+        for res
+        in backend.resources()
+    ))
     for locale in backend.locales():
         translations = []
         domain = None

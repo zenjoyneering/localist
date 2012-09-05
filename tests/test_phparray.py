@@ -37,6 +37,12 @@ class PHPArrayTest(unittest.TestCase):
         res_path = os.path.exists("tests") and "tests/phparray/loclist" or "phparray/loclist"
         self.phparr = PHPArray(res_path, varname="list")
 
+    def tearDown(self):
+        res_path = os.path.exists("tests") and "tests/phparray/loclist" or "phparray/loclist"
+        translations = os.path.join(res_path, "es_ES", "first.list.php")
+        if os.path.exists(translations):
+            os.unlink(translations)
+
     def test_parse(self):
         parsed = parse_array(PHP_ARR)
         self.assertEqual(parsed, PY_ARR)
@@ -68,6 +74,29 @@ class PHPArrayTest(unittest.TestCase):
             "last": 100
         }
         self.assertEqual(flat, expected)
+
+    def test_nested(self):
+        flat = {
+            "first": 1,
+            "second": "100",
+            "nested.more": "one",
+            "nested.yet": "level",
+            "nested.inner.deepest": "inside",
+            "last": 100
+        }
+        expected = {
+            "first": 1,
+            "second": "100",
+            "nested": {
+                "more": "one",
+                "yet": "level",
+                "inner": {
+                    "deepest": "inside"
+                }
+            },
+            "last": 100
+        }
+        self.assertEqual(nested(flat), expected)
 
     def test_locales(self):
         expected = sorted(["ru_RU", "en_US", "es_ES"])

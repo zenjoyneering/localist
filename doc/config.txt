@@ -1,0 +1,13 @@
+Configuring localist
+====================
+
+Образец файла конфигурации для android-проектов::
+
+    [urls]
+    default = http://localhost:5094/l10n
+
+    [translation]
+    format = androidxml
+    project = Project Name
+    source_locale = en
+

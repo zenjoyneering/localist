@@ -91,13 +91,17 @@ class Backend(object):
     """Base interface for backend to be implemented"""
 
     def locales(self):
+        """Must return locales list, may be a generator"""
         raise Exception("Not implemented")
 
     def domains(self, locale=None):
+        """Must return domain (file) list"""
         raise Exception("Not implemented")
 
     def resources(self, locale=None):
+        """Must return resources for given locales, may be a generator"""
         raise Exception("Not implemented")
 
     def update(self, resources, locale, domain):
+        """Must updated domain for given locale with resources"""
         raise Exception("Not implemented")
