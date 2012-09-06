@@ -28,13 +28,14 @@ body {
 
 table .edit, table .edit-plural{
     padding: 0;
+    position: relative;
 }
 
 .edit textarea, .edit-plural textarea{
     display: block;
     margin: 0;
     width: 99.7%;
-    height: 99.9%;
+    min-height: 99.9%;
     /*
     border: solid ;
     border-radius: 0;

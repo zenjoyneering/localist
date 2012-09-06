@@ -15,7 +15,7 @@ web.app({
                 for (var i in data.rows){
                     name = data.rows[i].key[0];
                     project = projects[name] || {
-                        name: name,
+                        //name: name,
                         sources: 0,
                         total: 0,
                         locales: 0,
@@ -27,9 +27,9 @@ web.app({
                                       data.rows[i].value : project.sources;
                     projects[name] = project;
                 }
-                web.app.data.projects = [];
                 var estimated=0, 
                     actual=0;
+                web.app.data.projects = [];
                 for (name in projects){
                     project = projects[name];
                     project.progress = (project.total*100)/(project.sources*project.locales);
@@ -38,15 +38,26 @@ web.app({
                     actual += project.total;
                 };
                 web.app.data.progress = actual*100/estimated;
-                cb();
+                $.getJSON("../_design/i18n/_view/projects", function(meta){
+                    for (i in meta.rows){
+                        name = meta.rows[i].key;
+                        project = meta.rows[i].value;
+                        if (!projects[name]){
+                            projects[name] = project;
+                        } else {
+                            $.extend(projects[name], project);
+                        }
+                    };
+                    web.app.data.projects_map = projects;
+                    cb();
+                });
             });
         },
         locales: function(options, cb){
-            console.log(options);
-            web.app.data.project = options.project;
+            web.app.data.project = web.app.data.projects_map[options.project];
             var url = '../_design/i18n/_view/resources?group_level=3' +
-                      '&startkey=["' + web.app.data.project + '"]' +
-                      '&endkey=["' + web.app.data.project + '", {}]';
+                      '&startkey=["' + web.app.data.project._id + '"]' +
+                      '&endkey=["' + web.app.data.project._id + '", {}]';
             $.getJSON(url, function(data){
                 // data format:
                 // { rows: [
@@ -84,10 +95,8 @@ web.app({
                     translationProgress += message_count;
                 }
 
-                // !!!!!! @FIXME: wild hack
-                sourceLocale.code = "en";
-                sourceLocale.messages = stats["en"].message_count;
-
+                sourceLocale.code = web.app.data.project.language;
+                sourceLocale.messages = stats[web.app.data.project.language].message_count;
 
                 for (var code in stats){
                     var progress = stats[code] ?
@@ -210,7 +219,7 @@ web.app({
             } else {
                 doc = {
                     "type": "i18n.resource",
-                    "project": web.app.data.project,
+                    "project": web.app.data.project._id,
                     "locale": web.app.data.localeCode.to,
                     "domain": web.app.data.translation.domain,
                     "message": text,
@@ -249,7 +258,7 @@ web.app({
             } else {
                 doc = {
                     "type": "i18n.resource",
-                    "project": web.app.data.project,
+                    "project": web.app.data.project._id,
                     "locale": web.app.data.localeCode.to,
                     "domain": web.app.data.translation.domain,
                     "name": opts.key,

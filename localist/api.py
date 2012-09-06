@@ -42,6 +42,39 @@ class Service(object):
         self.conn.close()
         return True
 
+    def project_info(self, project):
+        """Retrieve project info from service"""
+        self.login()
+        self.conn.connect()
+        url = os.path.join(self.url.path, project)
+        self.conn.request('GET', url, headers={'Cookies': self._auth_token})
+        response = self.conn.getresponse()
+        info = response.status == 200 and json.loads(response.read()) or None
+        self.conn.close()
+        return info
+
+    def register_project(self, project, language, translations, title=None):
+        """Register project on service"""
+        info = {
+            "type": "i18n.project",
+            "_id": project,
+            "title": title or project,
+            "language": language,
+            "translations": translations
+        }
+        data = json.dumps(info)
+        headers = {
+            'Cookies': self._auth_token,
+            'Content-Type': 'application/json'
+        }
+        self.login()
+        self.conn.connect()
+        self.conn.request('POST', self.url.path, body=data, headers=headers)
+        response = self.conn.getresponse()
+        status = response.status == 201 and True or False
+        self.conn.close()
+        return status
+
     def resources(self, project, locale):
         """Get all resource for project in given locale"""
         self.login()

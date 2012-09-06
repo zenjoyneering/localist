@@ -3,18 +3,37 @@
 
 from localist import Resource, Backend
 import os
+import subprocess
 import json
 import re
 from glob import glob
 
 
-def parse_array(php):
+def parse_array(phpdata, varname):
     """Parses an php array assignment"""
+    php = subprocess.Popen(
+        "php", stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+    commands = "{}\nprint(json_encode(${}));".format(phpdata, varname)
+    (out, err) = php.communicate(commands)
+    out = out.replace(r"\\u", r"\u")
+    return json.loads(out)
+    """
     js = php.replace("=>", ":").replace("<?php", "").replace("<?", "")
-    js = js.replace(");", "}").replace(")", "}").replace("array(", "{")
+    js = js.replace(");", "}").replace(")", "}")
+    js = re.sub("array\s*[(]", "{", js)
     js = re.sub("[$][a-zA-Z0-9_]*\s*=\s*", "", js)
     js = re.sub("[,]\s*[}]", "}", js)
-    return json.loads(js)
+    js = re.sub("[^\\][']", '"', js)
+    result = {}
+    try:
+        result = json.loads(js)
+    except Exception:
+        print("Failed to parse JSON:")
+        print(js)
+    return result
+    """
 
 
 def serialize_array(data, varname):
@@ -28,9 +47,11 @@ def flatten(nested_dict, sep=".", start=""):
     """Flattens nested dict"""
     flat = {}
     for (k, v) in nested_dict.items():
-        key = start and "".join((start, sep, k)) or k
+        key = start and "".join((start, sep, str(k))) or k
         if isinstance(v, dict):
             flat.update(flatten(v, start=key))
+        elif isinstance(v, list):
+            flat.update(flatten(dict(enumerate(v)), start=key))
         else:
             flat[key] = v
     return flat
@@ -86,7 +107,8 @@ class PHPArray(Backend):
         for domain_file in glob(search):
             (_, domain) = os.path.split(domain_file)
             (domain, _) = os.path.splitext(domain)
-            entries = parse_array(open(domain_file).read())
+            entries = parse_array(open(domain_file).read(), self.varname)
+            entries = entries or {}
             for (key, val) in flatten(entries).items():
                 yield Resource(domain=domain, locale=locale, message=val, name=key)
 
@@ -99,3 +121,7 @@ class PHPArray(Backend):
         outfile.write(serialize_array(nested(texts), self.varname))
         #writing lines
         outfile.close()
+
+
+def get_backend(*args, **kwargs):
+    return PHPArray(*args, **kwargs)

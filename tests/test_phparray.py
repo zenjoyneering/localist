@@ -15,6 +15,7 @@ $some_var = array(
         "more" => array("new_level" => 300)
     ),
     "more_k" => "and end",
+    "list" => ["one", "two", "three"]
 );
 
 """
@@ -27,7 +28,8 @@ PY_ARR = {
             "new_level": 300
         }
     },
-    "more_k": "and end"
+    "more_k": "and end",
+    "list": ["one", "two", "three"]
 }
 
 
@@ -44,12 +46,12 @@ class PHPArrayTest(unittest.TestCase):
             os.unlink(translations)
 
     def test_parse(self):
-        parsed = parse_array(PHP_ARR)
+        parsed = parse_array(PHP_ARR, "some_var")
         self.assertEqual(parsed, PY_ARR)
 
     def test_serialize_parse(self):
-        serialized = serialize_array(PY_ARR, "varname")
-        self.assertEqual(PY_ARR, parse_array(serialized))
+        serialized = serialize_array(PY_ARR, "some_var")
+        self.assertEqual(PY_ARR, parse_array(serialized, "some_var"))
 
     def test_flatten(self):
         orig = {
@@ -62,6 +64,7 @@ class PHPArrayTest(unittest.TestCase):
                     "deepest": "inside"
                 }
             },
+            "list": ["one", "two", "three"],
             "last": 100
         }
         flat = flatten(orig)
@@ -71,6 +74,9 @@ class PHPArrayTest(unittest.TestCase):
             "nested.more": "one",
             "nested.yet": "level",
             "nested.inner.deepest": "inside",
+            "list.0": "one",
+            "list.1": "two",
+            "list.2": "three",
             "last": 100
         }
         self.assertEqual(flat, expected)
@@ -117,22 +123,19 @@ class PHPArrayTest(unittest.TestCase):
         self.assertEqual(expected_keys, sorted(actual_keys))
 
     def test_update(self):
-        resources = [res
-            for res
-            in self.phparr.resources("ru_RU")
+        resources = [
+            res for res in self.phparr.resources("ru_RU")
             if res.domain == "first.list"
         ]
         expected = sorted([
             (res.name, res.text)
             for res in resources
         ])
-        print(expected)
         self.phparr.update(resources, "es_ES", "first.list")
         actual = sorted([
             (res.name, res.text)
             for res in self.phparr.resources("es_ES")
         ])
-        print(actual)
         self.assertTrue(len(resources) > 0 and expected == actual)
 
 

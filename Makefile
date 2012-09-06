@@ -16,7 +16,7 @@ webapp:
 backend:
 	./couchdb/coucher.py push couchdb/_design ${DB_NAME}
 
-push: meow astrid k9
+push: topface meow astrid k9
 
 meow:
 	cd sample_data/meow-android && localist push
@@ -26,6 +26,9 @@ astrid:
 
 k9:
 	cd sample_data/k-9 && localist push
+
+topface:
+	cd sample_data/tf && localist push
 
 test:
 	venv/bin/python /usr/bin/nosetests --with-coverage --cover-package=localist tests

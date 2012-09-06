@@ -62,8 +62,8 @@
                     <!-- {{#projects}} -->
                     <tr>
                         <td>
-                            <a href="#progress?project={{name}}">
-                                {{name}}
+                            <a href="#progress?project={{_id}}">
+                                {{title}}
                             </a>
                         </td>
                         <td>
@@ -79,7 +79,8 @@
         <section class="container-fluid" id="progress" data-unit="progress">
             <div class="page-header row-fluid">
                 <h3 class="span10">
-                    Translation workspace
+                    Translating
+                    <a href="#projects">{{project.title}}</a>
                         <div class="progress">
                             <div class="bar" style="width: {{progress}}%"></div>
                         </div>
@@ -103,7 +104,7 @@
                     <!-- {{#langs}} -->
                     <tr>
                         <td>
-                            <a href="#domains?project={{project}}&locale={{code}}">
+                            <a href="#domains?project={{project._id}}&locale={{code}}">
                                 {{locale.name}} ({{locale.localName}})
                             </a>
                         </td>
@@ -122,14 +123,11 @@
             <div class="page-header row-fluid">
                 <h3 class="span10">
                     Translating 
-                        <!--
-                        from
-                        <a href="#">{{fromLocale.name}}</a>
-                        -->
+                        <a href="#projects">{{project.title}}</a>
                         to 
-                        <a href="#progress?project={{project}}">
+                        <a href="#progress?project={{project._id}}">
                             {{toLocale.name}}
-                        </a> 
+                        </a>
                         <div class="progress">
                             <div class="bar" style="width: {{progress}}%"></div>
                         </div>
@@ -153,7 +151,7 @@
                     <!-- {{#domains}} -->
                     <tr>
                         <td>
-                            <a href="#translate?project={{project}}&domain={{title}}&from={{localeCode.from}}&to={{localeCode.to}}">
+                            <a href="#translate?project={{project._id}}&domain={{title}}&from={{localeCode.from}}&to={{localeCode.to}}">
                                 {{title}}
                             </a>
                             <span>(x obsolete, y discarded, z unreviewed messages)
@@ -174,17 +172,20 @@
                 <!-- {{#translation}} -->
                 <h3 class="span7">
                     Translating 
-                    <a href="#domains?project={{project}}&locale={{localeCode.to}}">
-                        {{domain}}
-                    </a>
+                    <a href="#projects">{{project.title}}</a>
                     <!--
                     from
                     <a href="#">{{fromLocale.name}}</a>
                     -->
                     to 
-                    <a href="#progress?project={{project}}">
+                    <a href="#progress?project={{project._id}}">
                         {{toLocale.name}}
                     </a> 
+                    (
+                    <a href="#domains?project={{project._id}}&locale={{localeCode.to}}">
+                        {{domain}}
+                    </a>
+                    )
                     <div class="progress">
                         <div class="bar" style="width: {{progress}}%"></div>
                     </div>

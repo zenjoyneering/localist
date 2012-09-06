@@ -43,7 +43,7 @@ class AndroidXML(object):
         self.search = search or self.STRINGS
 
     def locales(self):
-        """Return list of available locales, found in res-folder"""
+        """Return list of available locales, found in res-folder, w/o source"""
         search = os.path.join(self.basepath, self.TRANSLATED)
         for dirname in glob.glob(search):
             (_, values_dir) = os.path.split(dirname)
@@ -59,10 +59,9 @@ class AndroidXML(object):
             for fname in glob.glob(search)
         ]
 
-    def resources(self, locale=None):
+    def resources(self, locale="en"):
         """Iterator on resources for given language code (or from values dir)"""
-        values_dir = locale and "values-{}".format(locale) or "values"
-        locale = locale or "en"
+        values_dir = locale != "en" and "values-{}".format(locale) or "values"
         search = os.path.join(self.basepath, values_dir, self.search)
         for source in glob.glob(search):
             (_, fname) = os.path.split(source)

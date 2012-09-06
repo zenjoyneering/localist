@@ -78,7 +78,10 @@ class Resource(object):
 
     # Black magic start here:
     def __eq__(self, other):
-        return type(self) == type(other) and self.text == other.text
+        return type(self) == type(other) and \
+            self.text == other.text and \
+            self.name == self.name and \
+            self.domain == self.domain
 
     def __getattr__(self, name):
         return self._data.get(name)

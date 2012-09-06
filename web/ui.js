@@ -112,7 +112,11 @@ web.app({
                 web.app.fetch("translations", opts, function(){
                     $("section").hide();
                     $("#translation").hogan(web.app.data);
+                    // fix textarea heights
                     $("#translation").show();
+                    $("#translation textarea").each(function(el){
+                        $(this).css('min-height', $(this).parent().height() + "px");
+                    });
                 });
             }
         )

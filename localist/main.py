@@ -35,9 +35,9 @@ def push(settings, url="default", *args, **kwargs):
     """Push all localizible resources to service"""
     url = settings.get('urls', url) or url
     project = settings.get("translation", "project")
+    source_locale = settings.get('translation', 'source_locale')
     print('Pushing {} to {}'.format(project, url))
     service = Service(url)
-    source_locale = settings.get('translation', 'source_locale') or 'en'
 
     # instantiating backend
     # TODO: Refactor this, make extendable.
@@ -50,6 +50,16 @@ def push(settings, url="default", *args, **kwargs):
 
     lookup_key = u"{resource.name}:{resource.text}"
 
+    # ensure if project info exists, create if not
+    project_info = service.project_info(project)
+    if not project_info:
+        #creating project
+        translations = [
+            locale for locale in backend.locales()
+            if locale != source_locale
+        ]
+        service.register_project(project, source_locale, translations)
+
     pushed = frozenset((
         lookup_key.format(resource=res)
         for res
@@ -58,7 +68,7 @@ def push(settings, url="default", *args, **kwargs):
     if pushed:
         # TODO: Refactor as a separate *changes* function
         changes = (
-            res for res in backend.resources()
+            res for res in backend.resources(source_locale)
             if lookup_key.format(resource=res) not in pushed
         )
         revisions = service.update(project, changes)
@@ -68,7 +78,7 @@ def push(settings, url="default", *args, **kwargs):
     else:
         print("Making an first push to the workspace""")
         # here we 'cache' list for guarantee that order will not change
-        resources = list(backend.resources())
+        resources = list(backend.resources(source_locale))
         revisions = service.update(project, resources)
         print("Uploaded {} {} resources".format(len(revisions), source_locale))
         print("Uploading translations...")
@@ -76,11 +86,12 @@ def push(settings, url="default", *args, **kwargs):
         # TODO: Replace domain by source's value, olny for android so must go
         # out
         # TODO: lookup key should be defined by backend
-        key = "{resource.name}:{resource.is_plural}"
+        key = u"{resource.name}:{resource.is_plural}"
         source_ids = {}
         for (res, rev) in zip(resources, revisions):
             source_ids[key.format(resource=res)] = (rev, res.domain)
-        for locale in backend.locales():
+        locales = (locale for locale in backend.locales() if locale != source_locale)
+        for locale in locales:
             translations = []
             for res in backend.resources(locale):
                 meta = source_ids.get(key.format(resource=res))
@@ -97,6 +108,7 @@ def pull(settings, url="default", *args, **kwargs):
     """Pull all translations for local resources from service"""
     url = settings.get('urls', url) or url
     project = settings.get("translation", "project")
+    source_locale = settings.get("translation", "source_locale")
     print('Pulling {} translations from {}'.format(project, url))
     service = Service(url)
 
@@ -109,30 +121,39 @@ def pull(settings, url="default", *args, **kwargs):
     )
     backend = backend_module.get_backend(**backend_settings)
 
-    lookup_key = "{resource.domain}:{resource.name}:{resource.is_plural}"
+    lookup_key = u"{resource.domain}:{resource.name}:{resource.is_plural}"
 
-    to_translate = frozenset((
-        lookup_key.format(resource=res)
-        for res
-        in backend.resources()
+    to_translate = dict((
+        (lookup_key.format(resource=res), res)
+        for res in backend.resources(locale=source_locale)
     ))
+    # for every resource from server if it's text same as local
+    # save source doc id to choose right one from translations
+    sources = {}
+    for res in service.resources(project, source_locale):
+        key = lookup_key.format(resource=res)
+        if to_translate.get(key, None) == res:
+            sources[key] = {'id': res._id, 'rev': res._rev}
+
     for locale in backend.locales():
-        translations = []
+        translated = []
         domain = None
-        for res in service.resources(project, locale):
-            if lookup_key.format(resource=res) not in to_translate:
-                # this key in unknown for local code, skip it
-                continue
-            if domain and res.domain != domain:
+        translations = (
+            res for res in service.resources(project, locale)
+            if sources.get(lookup_key.format(resource=res), None) == res.source
+        )
+        for res in translations:
+            if domain and res.domain != domain and translated:
                 # the new domain begins, so push current
                 print("Updating {} translations for {}".format(locale, domain))
-                backend.update(translations, locale, domain)
-                translations = []
-            translations.append(res)
+                backend.update(translated, locale, domain)
+                translated = []
+            translated.append(res)
             domain = res.domain
-        # update the last one
-        print("Updating {} translations for {}".format(locale, domain))
-        backend.update(translations, locale, domain)
+        if domain and translated:
+            # update the last one
+            print("Updating {} translations for {}".format(locale, domain))
+            backend.update(translated, locale, domain)
 
 
 def usage(*args, **kwargs):
