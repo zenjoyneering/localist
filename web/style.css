@@ -43,6 +43,10 @@ table .edit, table .edit-plural{
     background-color: transparent;
 }
 
+.untranslated * {
+    background-color: #f2dede !important;
+}
+
 .progress {
     margin: 5px 0 !important;
 }

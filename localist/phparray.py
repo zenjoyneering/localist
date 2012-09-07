@@ -47,7 +47,7 @@ def flatten(nested_dict, sep=".", start=""):
     """Flattens nested dict"""
     flat = {}
     for (k, v) in nested_dict.items():
-        key = start and "".join((start, sep, str(k))) or k
+        key = start and u"".join((start, sep, unicode(k))) or k
         if isinstance(v, dict):
             flat.update(flatten(v, start=key))
         elif isinstance(v, list):

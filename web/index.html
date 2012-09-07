@@ -143,7 +143,7 @@
             <table class="domain-list table table-striped">
                 <thead>
                     <tr>
-                        <th>Domain</th>
+                        <th>File</th>
                         <th>Progress</th>
                     </tr>
                 </thead>
@@ -154,7 +154,7 @@
                             <a href="#translate?project={{project._id}}&domain={{title}}&from={{localeCode.from}}&to={{localeCode.to}}">
                                 {{title}}
                             </a>
-                            <span>(x obsolete, y discarded, z unreviewed messages)
+                            <!--<span>(x obsolete, y discarded, z unreviewed messages)</span>-->
                         </td>
                         <td>
                             <div class="progress progress-success">
@@ -170,7 +170,7 @@
         <section class="container-fluid" id="translation">
             <div class="page-header row-fluid">
                 <!-- {{#translation}} -->
-                <h3 class="span7">
+                <h3 class="span10">
                     Translating 
                     <a href="#projects">{{project.title}}</a>
                     <!--
@@ -185,16 +185,18 @@
                     <a href="#domains?project={{project._id}}&locale={{localeCode.to}}">
                         {{domain}}
                     </a>
-                    )
+                    file has {{untranslated}} untranslated messages)
                     <div class="progress">
                         <div class="bar" style="width: {{progress}}%"></div>
                     </div>
                 </h3>
+                <!--
                 <ul class="stats span3">
-                    <li><a href="#"><b>{{untranslated}}</b> untranslated messages</a></li>
-                    <li><a href="#"><b>{{unapproved}}</b> unapproved messages</a></li>
-                    <li><a href="#"><b>{{obsolete}}</b> deprecated messages</a></li>
+                    <li><b>{{untranslated}}</b> untranslated messages</li>
+                    <li><b>{{unapproved}}</b> unapproved messages</li>
+                    <li><b>{{obsolete}}</b> deprecated messages</li>
                 </ul>
+                -->
                 <div class="span2 userbox">
                     <h4>Hello, {{user.name}}!</h4>
                     <ul>
@@ -206,7 +208,7 @@
             </div>
 
             <div class="translate row-fluid">
-                <div class="span10"><table class="trans table table-striped">
+                <div class="span12"><table class="trans table table-striped">
                     <thead>
                         <tr>
                             <th>Source ({{fromLocale.name}})</th>
@@ -219,14 +221,14 @@
                     <tbody>
                         <!-- {{#translation.from}} -->
                         <!-- {{#value.message}} -->
-                        <tr>
+                        <!-- {{#value}} -->
+                        <tr class="{{resource_status}}">
                             <td>
-                                {{value.message}}
+                                {{message}}
                                 <div class="key">
-                                    <small><b>key: </b>{{value.name}}</small>
+                                    <small><b>key: </b>{{name}}</small>
                                 </div>
                             </td>
-                            <!-- {{#value}} -->
                             <td class="edit">
                                 <textarea data-source-id="{{_id}}"
                                     data-source-rev="{{_rev}}"
@@ -234,13 +236,15 @@
                                     data-translation-id="{{translateId}}"
                                     >{{translate}}</textarea>
                             </td>
-                            <!-- {{/value}} -->
                         </tr>
+                        <!-- {{/value}} -->
                         <!-- {{/value.message}} -->
                  
                         <!-- {{#value.plurals}} -->
+                        <!-- {{#value}} -->
                         <tr>
                             <td>
+                                <!-- {{#value.plurals}} -->
                                 <b>Plural forms</b>
                                 {{#pluralsFrom}}
                                     {{#forms}}
@@ -248,10 +252,10 @@
                                     {{/forms}}
                                 {{/pluralsFrom}}
                                 <div class="key">
-                                    <small><b>key: </b>{{value.name}}</small>
+                                    <small><b>key: </b>{{name}}</small>
                                 </div>
+                                <!-- {{/value.plurals}} -->
                             </td>
-                            <!-- {{#value}} -->
                             <td class="edit-plural" data-source-id="{{_id}}"
                                 data-source-rev="{{_rev}}"
                                 data-key="{{name}}"
@@ -263,13 +267,14 @@
                                     {{/forms}}
                                 {{/pluralsTo}}
                             </td>
-                            <!-- {{/value}} -->
                         </tr>
+                        <!-- {{/value}} -->
                         <!-- {{/value.plurals}} -->
                         <!-- {{/translation.from}} -->
                     </tbody>
                 </table></div>
 
+                <!--
                 <div class="glossary span2">
                     <h5>Glossary</h5>
                     <dl>
@@ -277,6 +282,7 @@
                         <dd>Definition</dd>
                     </dl>
                 </div>
+                -->
             </div>
        </section>
         

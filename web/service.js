@@ -147,21 +147,6 @@ web.app({
                 unapproved: 0,
                 obsolete: 0
             };
-            web.app.data.translate = function(){
-                // this == doc with i18n
-                if (web.app.data.translation.to[this._id]){
-                    return web.app.data.translation.to[this._id].message;
-                } else {
-                    return this.message;
-                }
-            };
-            web.app.data.translateId = function(){
-                if (web.app.data.translation.to[this._id]){
-                    return web.app.data.translation.to[this._id]._id;
-                } else {
-                    return "";
-                }
-            };
             var queries = 2;
             var complete = function(){
                 if (queries === 0){
@@ -209,7 +194,7 @@ web.app({
                 }
             });
         },
-        translate: function(text, opts){
+        translate: function(text, opts, cb){
             var sourceId = opts.sourceId;
             var doc;
             if (web.app.data.translation.to[sourceId]){
@@ -238,16 +223,17 @@ web.app({
                 complete: function(jqXHR, textStatus){
                     var data = $.parseJSON(jqXHR.responseText);
                     if (data.error){
-                        alert("Fail");
+                        cb({error: data.error});
                     } else {
                         doc._id = data.id;
                         doc._rev = data.rev;
                         web.app.data.translation.to[sourceId] = doc;
+                        cb({data: data});
                     }
                 }
             });
         },
-        translatePlural: function(text, opts){
+        translatePlural: function(text, opts, cb){
             var sourceId = opts.sourceId;
             var doc;
             if (web.app.data.translation.to[sourceId]){
@@ -278,11 +264,12 @@ web.app({
                 complete: function(jqXHR, textStatus){
                     var data = $.parseJSON(jqXHR.responseText);
                     if (data.error){
-                        alert("Fail");
+                        cb({error: data.error});
                     } else {
                         doc._id = data.id;
                         doc._rev = data.rev;
                         web.app.data.translation.to[sourceId] = doc;
+                        cb({data: data});
                     }
                 }
             });
