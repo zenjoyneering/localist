@@ -5,7 +5,6 @@ from localist import Resource, Backend
 import os
 import subprocess
 import json
-import re
 from glob import glob
 
 
@@ -19,28 +18,18 @@ def parse_array(phpdata, varname):
     (out, err) = php.communicate(commands)
     out = out.replace(r"\\u", r"\u")
     return json.loads(out)
-    """
-    js = php.replace("=>", ":").replace("<?php", "").replace("<?", "")
-    js = js.replace(");", "}").replace(")", "}")
-    js = re.sub("array\s*[(]", "{", js)
-    js = re.sub("[$][a-zA-Z0-9_]*\s*=\s*", "", js)
-    js = re.sub("[,]\s*[}]", "}", js)
-    js = re.sub("[^\\][']", '"', js)
-    result = {}
-    try:
-        result = json.loads(js)
-    except Exception:
-        print("Failed to parse JSON:")
-        print(js)
-    return result
-    """
 
 
 def serialize_array(data, varname):
     """Serializes dict as php array assignment expr"""
-    js = json.dumps(data, indent=1)
-    js = js.replace("{", "array(").replace("}", ")").replace(":", "=>")
-    return "<?php\n${} = {};".format(varname, js)
+    php = subprocess.Popen(
+        "php", stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+    js = json.dumps(data)
+    commands = "<?php\nvar_export(json_decode('{}', true));".format(js)
+    (out, err) = php.communicate(commands)
+    return "<?php\n${} = {};".format(varname, out)
 
 
 def flatten(nested_dict, sep=".", start=""):
