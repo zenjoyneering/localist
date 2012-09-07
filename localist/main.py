@@ -10,7 +10,7 @@ from ConfigParser import SafeConfigParser
 from localist.api import Service
 
 
-COMMANDS = ["pull", "push"]
+COMMANDS = ["pull", "push", "stats"]
 
 
 def read_config(config):
@@ -154,6 +154,42 @@ def pull(settings, url="default", *args, **kwargs):
             # update the last one
             print("Updating {} translations for {}".format(locale, domain))
             backend.update(translated, locale, domain)
+
+
+def stats(settings, *args, **kwrags):
+    """Display duplacation stats on resources"""
+    project = settings.get("translation", "project")
+    title = "Statistics on {}".format(project)
+    print(title)
+    print("=" * len(title))
+    print("")
+    source_locale = settings.get("translation", "source_locale")
+    backend_format = settings.get('translation', 'format')
+    backend_settings = dict(settings.items(backend_format))
+    backend_module = __import__(
+        "localist.{}".format(backend_format), fromlist=["localist"]
+    )
+    backend = backend_module.get_backend(**backend_settings)
+    text_to_key = {}
+    total = 0
+    for res in backend.resources(locale=source_locale):
+        if res.text not in text_to_key:
+            text_to_key[res.text] = []
+        text_to_key[res.text].append(res)
+        total += 1
+    print("{} messages in project".format(total))
+    print("")
+    repeats = {}
+    for text, dups in text_to_key.items():
+        count = len(dups)
+        if count > 1:
+            if not count in repeats:
+                repeats[count] = 0
+            repeats[count] += 1
+
+    for r in sorted(repeats.keys()):
+        count = repeats[r]
+        print("{} messages repeated {} times ({}%)".format(count, r, (count * 100 / total)))
 
 
 def usage(*args, **kwargs):
