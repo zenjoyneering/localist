@@ -2,7 +2,9 @@ DB_NAME = http://admin:admin@localhost:5984/l10n/
 
 default: refresh
 
-refresh: dropdb createdb webapp backend push
+refresh: dropdb service push
+
+service: createdb webapp backend
 
 dropdb:
 	./couchdb/coucher.py dropdb ${DB_NAME}

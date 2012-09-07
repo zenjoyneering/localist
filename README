@@ -1,0 +1,51 @@
+Localist
+========
+
+Installation
+------------
+
+1. Install localist command-line tool (requires lxml)::
+
+    $ python setup.py install
+
+2. Install web-service (requires installed and running CouchDB, 
+   look into Makefile for details)::
+
+    $ make service
+
+
+
+
+Configuration
+-------------
+
+Go into your projects folder, and create config file named .localitrc::
+
+    [urls]
+    default = http://localhost:5984/l10n/
+
+    [translation]
+    project = Your project name
+    format = androidxml
+    source_locale = en
+
+    [androidxml]
+    resource_dir = res
+
+Now you can run::
+
+    $ localist push
+
+At the first run all resources and translation will be imported
+
+
+Using
+-----
+
+Pushing resources for translation::
+
+    $ localist push
+
+Pulling translations from service::
+
+    $ localist pull
