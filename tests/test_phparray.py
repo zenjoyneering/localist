@@ -15,7 +15,7 @@ $some_var = array(
         "more" => array("new_level" => 300)
     ),
     "more_k" => "and end",
-    "list" => ["one", "two", "three"]
+    "list" => array("one", "two", "three")
 );
 
 """
