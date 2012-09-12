@@ -26,9 +26,11 @@ def serialize_array(data, varname):
         "php", stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
-    js = json.dumps(data)
-    commands = "<?php\nvar_export(json_decode('{}', true));".format(js)
+    js = json.dumps(data).replace("'", r"\'")
+    commands = """<?php\nvar_export(json_decode('{}', true));""".format(js)
     (out, err) = php.communicate(commands)
+    if err:
+        print(err)
     return "<?php\n${} = {};".format(varname, out)
 
 
