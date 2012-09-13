@@ -81,18 +81,6 @@ $(function(){
         // exec action
         event.preventDefault();
     });
-    $(window).on("click", "a[data-ui-state]", {}, function(event){
-        /*
-        var $this = $(this);
-        console.log(web.app.state());
-        var state = $this.data("uiState");
-        if (web.app.ui[state]){
-            history.pushState(null, "", $this.attr("href"));
-            web.app.ui[state]($this.data());
-            //event.preventDefault();
-        }
-        */
-    });
     $(window).on("popstate", function(ev){
         var state = web.app.state();
         var hash = state.hash || web.app.ui['default'];

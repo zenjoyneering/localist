@@ -7,6 +7,7 @@ from urlparse import urlsplit
 from urllib import urlencode
 import os.path
 from localist import Resource
+from time import time
 
 
 class Service(object):
@@ -24,6 +25,8 @@ class Service(object):
     def login(self):
         """Login to couchdb using cookie-based authentication"""
         if self._auth_token:
+            return True
+        if self.username is None or self.password is None:
             return True
         self.conn.connect()
         data = urlencode({
@@ -55,19 +58,24 @@ class Service(object):
 
     def register_project(self, project, language, translations, title=None):
         """Register project on service"""
+        self.login()
         info = {
             "type": "i18n.project",
             "_id": project,
             "title": title or project,
             "language": language,
-            "translations": translations
+            "translations": translations,
+            "created": {
+                "at": int(time())
+            }
         }
+        if self.username:
+            info['created']['by'] = self.username
         data = json.dumps(info)
         headers = {
             'Cookies': self._auth_token,
             'Content-Type': 'application/json'
         }
-        self.login()
         self.conn.connect()
         self.conn.request('POST', self.url.path, body=data, headers=headers)
         response = self.conn.getresponse()
@@ -99,9 +107,16 @@ class Service(object):
         self.login()
         docs = []
         # TODO: Attach created/updated fields
+        stamp = int(time())
         for resource in resources:
             resource.project = project
-            docs.append(resource.as_dict)
+            doc = resource.as_dict
+            doc['created'] = {
+                "at": stamp
+            }
+            if self.username:
+                doc['created']['by'] = self.username
+            docs.append(doc)
         if not docs:
             return []
         bulk = {

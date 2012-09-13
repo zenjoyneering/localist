@@ -201,6 +201,10 @@ web.app({
                 doc = web.app.data.translation.to[sourceId];
                 doc.message = text;
                 doc.source.rev = opts.sourceRev;
+                doc.updated = {
+                    "by": web.app.data.user.name,
+                    "at": moment().unix()
+                }
             } else {
                 doc = {
                     "type": "i18n.resource",
@@ -212,6 +216,10 @@ web.app({
                     "source": {
                         id: opts.sourceId,
                         rev: opts.sourceRev
+                    },
+                    created: {
+                        "by": web.app.data.user.name,
+                        "at": moment().unix()
                     }
                 };
             }
@@ -241,6 +249,10 @@ web.app({
                 doc = web.app.data.translation.to[sourceId];
                 doc.source.rev = opts.sourceRev;
                 doc.plurals[opts.quantity] = text;
+                doc.updated = {
+                    "by": web.app.data.user.name,
+                    "at": moment().unix()
+                }
             } else {
                 doc = {
                     "type": "i18n.resource",
@@ -252,6 +264,10 @@ web.app({
                     "source": {
                         id: opts.sourceId,
                         rev: opts.sourceRev
+                    },
+                    created: {
+                        "by": web.app.data.user.name,
+                        "at": moment().unix()
                     }
                 };
                 doc.plurals[opts.quantity] = text;

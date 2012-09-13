@@ -19,7 +19,7 @@ backend:
 	./couchdb/coucher.py push couchdb/_design ${DB_NAME}
 
 #push: topface meow astrid k9
-push: astrid k9
+push: topface
 
 meow:
 	cd sample_data/meow-android && localist push
