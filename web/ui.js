@@ -122,9 +122,7 @@ web.app({
         ),
         logout: web.UI({}, function(){
             web.app.data = {};
-            web.app.logout(function(){
-                web.app.ui.login();
-            });
+            web.app.logout();
         }),
         projects: web.UI(
             {},

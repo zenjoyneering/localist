@@ -73,6 +73,12 @@ button {
 
 .signin {
     padding-right: 300px;
+    min-height: 500px;
+}
+
+form .msg{
+    color: red;
+    padding: 10px 0;
 }
 
 .signin input {

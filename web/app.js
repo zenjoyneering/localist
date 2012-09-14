@@ -1,6 +1,6 @@
 web.app({
     auth: function(options){
-        var authUrl = "/_session";
+        var authUrl = "/auth/session";
         if (!options){
             //just check from the cookie
             $.getJSON(authUrl, function(data){
@@ -28,9 +28,12 @@ web.app({
     logout: function(cb){
         $.ajax({
             type: "delete",
-            url: "/_session",
+            url: "/auth/session",
             complete: function(){
-                cb();
+                if (cb) {
+                    cb();
+                }
+                window.location = "/auth/";
             }
         });
     },

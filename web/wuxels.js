@@ -44,7 +44,7 @@
                 }
             }
             state = location.hash.substr(1, sep-1);
-        } else if (state){
+        } else if (location.hash){
             state = location.hash.substr(1);
         }
         return {
