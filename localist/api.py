@@ -15,12 +15,19 @@ class Service(object):
 
     RESOURCES_URI = "_design/i18n/_view/resources"
 
-    def __init__(self, url, username=None, password=None):
+    def __init__(self, url, username=None, password=None, proxy=None):
         self.url = urlsplit(url)
+        self.base_url = "http://{host}{port}/{path}".format(
+            host=self.url.hostname,
+            port=self.url.port and ":" + str(self.url.port) or "",
+            path=self.url.path
+        )
         self.username = username or self.url.username
         self.password = password or self.url.password
         self._auth_token = None
-        self.conn = HTTPConnection(self.url.hostname, self.url.port or 80)
+        (host, port) = proxy or (self.url.hostname, self.url.port)
+        port = port and int(port) or 80
+        self.conn = HTTPConnection(host, port)
 
     def login(self):
         """Login to couchdb using cookie-based authentication"""
@@ -34,7 +41,8 @@ class Service(object):
             "password": self.password
         })
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        self.conn.request('POST', "/_session", body=data, headers=headers)
+        url = os.path.join(self.base_url, "_session")
+        self.conn.request('POST', url, body=data, headers=headers)
         response = self.conn.getresponse()
         if response.status != 200:
             self.conn.close()
@@ -49,7 +57,7 @@ class Service(object):
         """Retrieve project info from service"""
         self.login()
         self.conn.connect()
-        url = os.path.join(self.url.path, project)
+        url = os.path.join(self.base_url, project)
         self.conn.request('GET', url, headers={'Cookies': self._auth_token})
         response = self.conn.getresponse()
         info = response.status == 200 and json.loads(response.read()) or None
@@ -77,7 +85,7 @@ class Service(object):
             'Content-Type': 'application/json'
         }
         self.conn.connect()
-        self.conn.request('POST', self.url.path, body=data, headers=headers)
+        self.conn.request('POST', self.base_url, body=data, headers=headers)
         response = self.conn.getresponse()
         status = response.status == 201 and True or False
         self.conn.close()
@@ -93,7 +101,7 @@ class Service(object):
             "endkey": '["{}", "{}", {{}}]'.format(project, locale)
         })
         view = os.path.join(
-            self.url.path,
+            self.base_url,
             "{url}?{options}".format(url=self.RESOURCES_URI, options=options)
         )
         self.conn.request("GET", view, headers={'Cookies': self._auth_token})
@@ -122,7 +130,7 @@ class Service(object):
         bulk = {
             'docs': docs
         }
-        bulk_docs_url = os.path.join(self.url.path, "_bulk_docs")
+        bulk_docs_url = os.path.join(self.base_url, "_bulk_docs")
         headers = {
             'Content-Type': "application/json",
             'Cookies': self._auth_token

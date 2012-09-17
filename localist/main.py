@@ -36,8 +36,13 @@ def push(settings, url="default", *args, **kwargs):
     url = settings.get('urls', url) or url
     project = settings.get("translation", "project")
     source_locale = settings.get('translation', 'source_locale')
+    if settings.has_section('proxy'):
+        proxy_opts = dict(settings.items('proxy'))
+        proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
+    else:
+        proxy = None
     print('Pushing {} to {}'.format(project, url))
-    service = Service(url)
+    service = Service(url, proxy=proxy)
 
     # instantiating backend
     # TODO: Refactor this, make extendable.
@@ -109,8 +114,13 @@ def pull(settings, url="default", *args, **kwargs):
     url = settings.get('urls', url) or url
     project = settings.get("translation", "project")
     source_locale = settings.get("translation", "source_locale")
+    if settings.has_section('proxy'):
+        proxy_opts = dict(settings.items('proxy'))
+        proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
+    else:
+        proxy = None
     print('Pulling {} translations from {}'.format(project, url))
-    service = Service(url)
+    service = Service(url, proxy=proxy)
 
     # instantiating backend
     # TODO: Refactor this, make extendable.

@@ -153,12 +153,17 @@ web.app({
                     cb();
                 }
             };
-            keys = [];
-            keys.push([options.project, options.from, options.domain]);
-            //keys.push([options.domain, options.to]);
+            var start_key = JSON.stringify(
+                [options.project, options.from, options.domain]
+            );
+            var end_key = JSON.stringify(
+                [options.project, options.from, options.domain, {}]
+            );
+            var url = '../_design/i18n/_view/resources?startkey=' + start_key
+                      + '&endkey=' + end_key + '&reduce=false';
             $.ajax({
                 type: "post",
-                url: "../_design/i18n/_view/resources?&reduce=false",
+                url: url,
                 contentType: "application/json",
                 data: JSON.stringify({keys: keys}),
                 complete: function(jqXHR, textStatus){
@@ -169,12 +174,17 @@ web.app({
                 }
             });
 
-            keys = [];
-            keys.push([options.project, options.to, options.domain]);
-            //keys.push([options.domain, options.to]);
+            start_key = JSON.stringify(
+                [options.project, options.to, options.domain]
+            );
+            end_key = JSON.stringify(
+                [options.project, options.to, options.domain, {}]
+            );
+            var url = '../_design/i18n/_view/resources?startkey=' + start_key
+                      + '&endkey=' + end_key + '&reduce=false';
             $.ajax({
                 type: "post",
-                url: "../_design/i18n/_view/resources?&reduce=false",
+                url: url,
                 contentType: "application/json",
                 data: JSON.stringify({keys: keys}),
                 complete: function(jqXHR, textStatus){
