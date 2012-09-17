@@ -9,11 +9,11 @@ function(head, req){
     send('<?xml version="1.0" encoding="utf-8"?>\n');
     send('<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">\n');
     while (row = getRow()){
-        if (row.value.i18n && row.value.i18n.message){
+        if (row.value.type == "i18n.resource" && row.value.message){
             // string resource
-            send('    <string name="' + row.value.i18n.key + '">' +
-                xmlEscape(row.value.i18n.message) + '</string>\n');
-        } else if (row.value.i18n && row.value.i18n.plurals){
+            send('    <string name="' + row.value.name + '">' +
+                xmlEscape(row.value.message) + '</string>\n');
+        } else if (row.value.type == "i18n.resource" && row.value.plurals){
             //plurals resource
         }
     }

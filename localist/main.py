@@ -10,7 +10,7 @@ from ConfigParser import SafeConfigParser
 from localist.api import Service
 
 
-COMMANDS = ["pull", "push", "stats"]
+COMMANDS = ["pull", "push", "diff", "stats"]
 
 
 def read_config(config):
@@ -91,7 +91,7 @@ def push(settings, url="default", *args, **kwargs):
         # TODO: Replace domain by source's value, olny for android so must go
         # out
         # TODO: lookup key should be defined by backend
-        key = u"{resource.name}:{resource.is_plural}"
+        key = u"{resource.domain}.{resource.name}:{resource.is_plural}"
         source_ids = {}
         for (res, rev) in zip(resources, revisions):
             source_ids[key.format(resource=res)] = (rev, res.domain)
@@ -166,6 +166,60 @@ def pull(settings, url="default", *args, **kwargs):
             backend.update(translated, locale, domain)
 
 
+def diff(settings, url="default", *args, **kwargs):
+    """Show differences betwen local and service translations"""
+    url = settings.get('urls', url) or url
+    project = settings.get("translation", "project")
+    source_locale = settings.get("translation", "source_locale")
+    if settings.has_section('proxy'):
+        proxy_opts = dict(settings.items('proxy'))
+        proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
+    else:
+        proxy = None
+    print('Getting diff for {} sources with {}'.format(project, url))
+    service = Service(url, proxy=proxy)
+
+    # instantiating backend
+    # TODO: Refactor this, make extendable.
+    backend_format = settings.get('translation', 'format')
+    backend_settings = dict(settings.items(backend_format))
+    backend_module = __import__(
+        "localist.{}".format(backend_format), fromlist=["localist"]
+    )
+    backend = backend_module.get_backend(**backend_settings)
+
+    lookup_key = u"{resource.domain}:{resource.name}:{resource.text}"
+
+    local_sources = frozenset((
+        lookup_key.format(resource=res)
+        for res in backend.resources(locale=source_locale)
+    ))
+    service_sources = frozenset((
+        lookup_key.format(resource=res)
+        for res in service.resources(project, source_locale)
+    ))
+    print("New local resources:")
+    print(local_sources - service_sources)
+
+    print("New remote resources:")
+    print(service_sources - local_sources)
+
+    for locale in backend.locales():
+        print("Getting diff for {} translations".format(locale))
+        local_sources = frozenset((
+            lookup_key.format(resource=res)
+            for res in backend.resources(locale=locale)
+        ))
+        service_sources = frozenset((
+            lookup_key.format(resource=res)
+            for res in service.resources(project, locale)
+        ))
+        local_new = sorted(local_sources - service_sources)
+        print("Local unique resources: {}".format(len(local_new)))
+        remote_new = sorted(service_sources - local_sources)
+        print("Remote unique resources: {}".format(len(remote_new)))
+
+
 def stats(settings, *args, **kwrags):
     """Display duplacation stats on resources"""
     project = settings.get("translation", "project")
@@ -200,6 +254,22 @@ def stats(settings, *args, **kwrags):
     for r in sorted(repeats.keys()):
         count = repeats[r]
         print("{} messages repeated {} times ({}%)".format(count, r, (count * 100 / total)))
+
+    print("")
+    print("Checking for keys, available only in translations and not in sources")
+    lookup = u"{resource.domain}:{resource.name}:{resource.is_plural}"
+    source_keys = frozenset((
+        lookup.format(resource=res)
+        for res in backend.resources(locale=source_locale)
+    ))
+    total = 0
+    for locale in backend.locales():
+        for res in backend.resources(locale=locale):
+            if not lookup.format(resource=res) in source_keys:
+                #print(u"Resource {resource.name} from {resource.locale} not found in {resource.domain}".format(resource=res))
+                total += 1
+    print("===============")
+    print("Total {} keys seem to be deprecated and will be removed on next pull".format(total))
 
 
 def usage(*args, **kwargs):
