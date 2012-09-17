@@ -17,7 +17,7 @@ class Service(object):
 
     def __init__(self, url, username=None, password=None, proxy=None):
         self.url = urlsplit(url)
-        self.base_url = "http://{host}{port}/{path}".format(
+        self.base_url = "http://{host}{port}{path}".format(
             host=self.url.hostname,
             port=self.url.port and ":" + str(self.url.port) or "",
             path=self.url.path
@@ -58,7 +58,7 @@ class Service(object):
         self.login()
         self.conn.connect()
         url = os.path.join(self.base_url, project)
-        self.conn.request('GET', url, headers={'Cookies': self._auth_token})
+        self.conn.request('GET', url, headers={'Cookie': self._auth_token})
         response = self.conn.getresponse()
         info = response.status == 200 and json.loads(response.read()) or None
         self.conn.close()
@@ -81,7 +81,7 @@ class Service(object):
             info['created']['by'] = self.username
         data = json.dumps(info)
         headers = {
-            'Cookies': self._auth_token,
+            'Cookie': self._auth_token,
             'Content-Type': 'application/json'
         }
         self.conn.connect()
@@ -94,7 +94,6 @@ class Service(object):
     def resources(self, project, locale):
         """Get all resource for project in given locale"""
         self.login()
-        self.conn.connect()
         options = urlencode({
             "reduce": "false",
             "startkey": '["{}", "{}"]'.format(project, locale),
@@ -104,7 +103,8 @@ class Service(object):
             self.base_url,
             "{url}?{options}".format(url=self.RESOURCES_URI, options=options)
         )
-        self.conn.request("GET", view, headers={'Cookies': self._auth_token})
+        self.conn.connect()
+        self.conn.request("GET", view, headers={'Cookie': self._auth_token})
         response = json.loads(self.conn.getresponse().read())
         self.conn.close()
         return (Resource(**doc['value']) for doc in response['rows'])
@@ -133,7 +133,7 @@ class Service(object):
         bulk_docs_url = os.path.join(self.base_url, "_bulk_docs")
         headers = {
             'Content-Type': "application/json",
-            'Cookies': self._auth_token
+            'Cookie': self._auth_token
         }
         self.conn.request(
             'POST', bulk_docs_url,
