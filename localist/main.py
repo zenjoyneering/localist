@@ -41,7 +41,7 @@ def push(settings, url="default", *args, **kwargs):
         proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
     else:
         proxy = None
-    print('Pushing {} to {}'.format(project, url))
+    print('Pushing {}'.format(project))
     service = Service(url, proxy=proxy)
 
     # instantiating backend
@@ -119,7 +119,7 @@ def pull(settings, url="default", *args, **kwargs):
         proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
     else:
         proxy = None
-    print('Pulling {} translations from {}'.format(project, url))
+    print('Pulling {} translations'.format(project))
     service = Service(url, proxy=proxy)
 
     # instantiating backend
@@ -176,7 +176,7 @@ def diff(settings, url="default", *args, **kwargs):
         proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
     else:
         proxy = None
-    print('Getting diff for {} sources with {}'.format(project, url))
+    print('Getting diff for {} sources'.format(project))
     service = Service(url, proxy=proxy)
 
     # instantiating backend
