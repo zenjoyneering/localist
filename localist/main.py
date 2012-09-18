@@ -8,6 +8,7 @@ import os
 import sys
 from ConfigParser import SafeConfigParser
 from localist.api import Service
+import argparse
 
 
 COMMANDS = ["pull", "push", "diff", "stats"]
@@ -109,7 +110,7 @@ def push(settings, url="default", *args, **kwargs):
             print("Uploaded {} {} resources".format(len(revisions), locale))
 
 
-def pull(settings, url="default", *args, **kwargs):
+def pull(settings, url="default", locale=None, *args, **kwargs):
     """Pull all translations for local resources from service"""
     url = settings.get('urls', url) or url
     project = settings.get("translation", "project")
@@ -145,7 +146,8 @@ def pull(settings, url="default", *args, **kwargs):
         if to_translate.get(key, None) == res:
             sources[key] = {'id': res._id, 'rev': res._rev}
 
-    for locale in backend.locales():
+    locale_list = locale and [locale] or backend.locales()
+    for locale in locale_list:
         translated = []
         domain = None
         translations = (
@@ -277,10 +279,14 @@ def usage(*args, **kwargs):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('command')
+    parser.add_argument('-l', '--locale')
     settings = read_config("localistrc")
     cmd = len(sys.argv) >= 2 and (sys.argv[1] in COMMANDS) and sys.argv[1] or "usage"
     command = globals()[cmd]
-    command(settings, *sys.argv[2:])
+    opts = vars(parser.parse_args())
+    command(settings, **opts)
 
 if __name__ == "__main__":
     main()
