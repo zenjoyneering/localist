@@ -157,14 +157,14 @@ def pull(settings, url="default", locale=None, *args, **kwargs):
         for res in translations:
             if domain and res.domain != domain and translated:
                 # the new domain begins, so push current
-                print("Updating {} translations for {}".format(locale, domain))
+                #print("Updating {} translations for {}".format(locale, domain))
                 backend.update(translated, locale, domain)
                 translated = []
             translated.append(res)
             domain = res.domain
         if domain and translated:
             # update the last one
-            print("Updating {} translations for {}".format(locale, domain))
+            #print("Updating {} translations for {}".format(locale, domain))
             backend.update(translated, locale, domain)
 
 
@@ -244,6 +244,9 @@ def stats(settings, *args, **kwrags):
         text_to_key[res.text].append(res)
         total += 1
     print("{} messages in project".format(total))
+    for locale in backend.locales():
+        resources = [res for res in backend.resources(locale=locale)]
+        print ("{} translation for {} locale".format(len(resources), locale))
     print("")
     repeats = {}
     for text, dups in text_to_key.items():

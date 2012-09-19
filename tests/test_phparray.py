@@ -6,7 +6,7 @@ import unittest
 #from localist import Resource
 from localist.phparray import *
 
-PHP_ARR = """<?php
+PHP_ARR = r"""<?php
 
 $some_var = array(
     "key" => "value",
@@ -15,6 +15,7 @@ $some_var = array(
         "more" => array("new_level" => 300)
     ),
     "more_k" => "and end",
+    "faily" => 'yep, we\'re crashing!',
     "list" => array("one", "two", "three")
 );
 
@@ -29,6 +30,7 @@ PY_ARR = {
         }
     },
     "more_k": "and end",
+    "faily": "yep, we're crashing!",
     "list": ["one", "two", "three"]
 }
 

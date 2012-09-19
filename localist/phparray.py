@@ -6,6 +6,7 @@ import os
 import subprocess
 import json
 from glob import glob
+from collections import OrderedDict
 
 
 def parse_array(phpdata, varname):
@@ -16,8 +17,7 @@ def parse_array(phpdata, varname):
     )
     commands = "{}\nprint(json_encode(${}));".format(phpdata, varname)
     (out, err) = php.communicate(commands)
-    out = out.replace(r"\\u", r"\u")
-    return json.loads(out)
+    return json.loads(out, object_pairs_hook=OrderedDict)
 
 
 def serialize_array(data, varname):
@@ -26,17 +26,17 @@ def serialize_array(data, varname):
         "php", stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
-    js = json.dumps(data).replace("'", r"\'")
+    #js = json.dumps(data).replace("'", r"\'").replace('\\\\', '\\')
+    #js = re.sub(r"[^\\]'", r"\'", json.dumps(data))
+    js = json.dumps(data).replace("''", r'\"').encode('string_escape')
     commands = """<?php\nvar_export(json_decode('{}', true));""".format(js)
     (out, err) = php.communicate(commands)
-    if err:
-        print(err)
     return "<?php\n${} = {};".format(varname, out)
 
 
 def flatten(nested_dict, sep=".", start=""):
     """Flattens nested dict"""
-    flat = {}
+    flat = OrderedDict()
     for (k, v) in nested_dict.items():
         key = start and u"".join((start, sep, unicode(k))) or k
         if isinstance(v, dict):
@@ -50,7 +50,7 @@ def flatten(nested_dict, sep=".", start=""):
 
 def nested(flat_dict, sep="."):
     """Make nested dict from flattened, using `sep` as key separator"""
-    unflatten = {}
+    unflatten = OrderedDict()
     keys = sorted(flat_dict.keys())
     for key in keys:
         parts = key.split(sep)
@@ -108,9 +108,9 @@ class PHPArray(Backend):
         texts = dict(((res.name, res.message) for res in resources))
         filename = "{}.php".format(domain)
         phpfile = os.path.join(self.path, locale, filename)
+        # write
         outfile = open(phpfile, "w")
         outfile.write(serialize_array(nested(texts), self.varname))
-        #writing lines
         outfile.close()
 
 
