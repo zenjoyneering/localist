@@ -7,6 +7,12 @@ import subprocess
 import json
 from glob import glob
 from collections import OrderedDict
+import re
+
+ARRAY_BEAUTIFY = {
+    "from": re.compile("=>\s*array\s?[(]"),
+    "to": "=> array("
+}
 
 
 def parse_array(phpdata, varname):
@@ -31,6 +37,7 @@ def serialize_array(data, varname):
     js = json.dumps(data).replace("''", r'\"').encode('string_escape')
     commands = """<?php\nvar_export(json_decode('{}', true));""".format(js)
     (out, err) = php.communicate(commands)
+    out = re.sub(ARRAY_BEAUTIFY['from'], ARRAY_BEAUTIFY['to'], out)
     return "<?php\n${} = {};".format(varname, out)
 
 
@@ -51,7 +58,7 @@ def flatten(nested_dict, sep=".", start=""):
 def nested(flat_dict, sep="."):
     """Make nested dict from flattened, using `sep` as key separator"""
     unflatten = OrderedDict()
-    keys = sorted(flat_dict.keys())
+    keys = flat_dict.keys()
     for key in keys:
         parts = key.split(sep)
         if len(parts) == 1:
@@ -71,10 +78,14 @@ class PHPArray(Backend):
     """PHP key-value arrays backed l10n resource storage"""
     LOCALE_DIR = "??_??"
 
-    def __init__(self, path, varname, filepattern="*.php"):
+    def __init__(self, path, varname, filepattern="*.php", exclude=None):
         self.path = path
         self.varname = varname
         self.filepattern = filepattern
+        if exclude:
+            self.exclude = [it.strip() for it in exclude.split(',') if it]
+        else:
+            self.exclude = []
 
     def locales(self):
         """Generator returning avaialble"""
@@ -92,12 +103,19 @@ class PHPArray(Backend):
             in glob(search)
         ]
 
-    def resources(self, locale):
+    def resources(self, locale, domain=None):
         """Yields a resources from php array"""
-        search = os.path.join(self.path, locale, self.filepattern)
+        pattern = domain and domain + self.filepattern or self.filepattern
+        search = os.path.join(self.path, locale, pattern)
         for domain_file in glob(search):
             (_, domain) = os.path.split(domain_file)
+            if domain in self.exclude:
+                # domain is excluded, so just skip
+                continue
             (domain, _) = os.path.splitext(domain)
+            if domain in self.exclude:
+                # domain is excluded, so just skip
+                continue
             entries = parse_array(open(domain_file).read(), self.varname)
             entries = entries or {}
             for (key, val) in flatten(entries).items():
@@ -105,7 +123,7 @@ class PHPArray(Backend):
 
     def update(self, resources, locale, domain):
         """Update a domain in given locale with resources"""
-        texts = dict(((res.name, res.message) for res in resources))
+        texts = OrderedDict(((res.name, res.message) for res in resources))
         filename = "{}.php".format(domain)
         phpfile = os.path.join(self.path, locale, filename)
         # write

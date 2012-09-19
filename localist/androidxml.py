@@ -59,7 +59,7 @@ class AndroidXML(object):
             for fname in glob.glob(search)
         ]
 
-    def resources(self, locale="en"):
+    def resources(self, locale="en", domain=None):
         """Iterator on resources for given language code (or from values dir)"""
         values_dir = locale != "en" and "values-{}".format(locale) or "values"
         search = os.path.join(self.basepath, values_dir, self.search)

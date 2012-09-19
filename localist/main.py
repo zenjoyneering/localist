@@ -9,6 +9,7 @@ import sys
 from ConfigParser import SafeConfigParser
 from localist.api import Service
 import argparse
+from collections import OrderedDict
 
 
 COMMANDS = ["pull", "push", "diff", "stats"]
@@ -32,7 +33,7 @@ def lookup_table(resources, revisions, key_format):
     return lookup
 
 
-def push(settings, url="default", *args, **kwargs):
+def push(settings, url="default", domain=None, *args, **kwargs):
     """Push all localizible resources to service"""
     url = settings.get('urls', url) or url
     project = settings.get("translation", "project")
@@ -74,7 +75,7 @@ def push(settings, url="default", *args, **kwargs):
     if pushed:
         # TODO: Refactor as a separate *changes* function
         changes = (
-            res for res in backend.resources(source_locale)
+            res for res in backend.resources(source_locale, domain)
             if lookup_key.format(resource=res) not in pushed
         )
         revisions = service.update(project, changes)
@@ -84,7 +85,7 @@ def push(settings, url="default", *args, **kwargs):
     else:
         print("Making an first push to the workspace""")
         # here we 'cache' list for guarantee that order will not change
-        resources = list(backend.resources(source_locale))
+        resources = list(backend.resources(source_locale, domain))
         revisions = service.update(project, resources)
         print("Uploaded {} {} resources".format(len(revisions), source_locale))
         print("Uploading translations...")
@@ -99,12 +100,10 @@ def push(settings, url="default", *args, **kwargs):
         locales = (locale for locale in backend.locales() if locale != source_locale)
         for locale in locales:
             translations = []
-            for res in backend.resources(locale):
+            for res in backend.resources(locale, domain):
                 meta = source_ids.get(key.format(resource=res))
                 if meta:
-                    source, domain = meta
-                    res.source = source
-                    res.domain = domain
+                    (res.source, res.domain) = meta
                 translations.append(res)
             revisions = service.update(project, translations)
             print("Uploaded {} {} resources".format(len(revisions), locale))
@@ -134,7 +133,7 @@ def pull(settings, url="default", locale=None, *args, **kwargs):
 
     lookup_key = u"{resource.domain}:{resource.name}:{resource.is_plural}"
 
-    to_translate = dict((
+    to_translate = OrderedDict((
         (lookup_key.format(resource=res), res)
         for res in backend.resources(locale=source_locale)
     ))
@@ -150,11 +149,15 @@ def pull(settings, url="default", locale=None, *args, **kwargs):
     for locale in locale_list:
         translated = []
         domain = None
-        translations = (
-            res for res in service.resources(project, locale)
-            if sources.get(lookup_key.format(resource=res), None) == res.source
-        )
-        for res in translations:
+        translations = {}
+        for res in service.resources(project, locale):
+            lookup = lookup_key.format(resource=res)
+            if sources.get(lookup, None) == res.source:
+                translations[lookup] = res
+        for (key, source) in to_translate.items():
+            res = translations.get(key, None)
+            if res is None:
+                continue
             if domain and res.domain != domain and translated:
                 # the new domain begins, so push current
                 #print("Updating {} translations for {}".format(locale, domain))
@@ -285,6 +288,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('command')
     parser.add_argument('-l', '--locale')
+    parser.add_argument('-d', '--domain')
     settings = read_config("localistrc")
     cmd = len(sys.argv) >= 2 and (sys.argv[1] in COMMANDS) and sys.argv[1] or "usage"
     command = globals()[cmd]
