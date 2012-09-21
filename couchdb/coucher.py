@@ -191,7 +191,8 @@ class CouchDB(object):
         self.conn.connect()
         if doc:
             # getting info about the doc
-            self.conn.request("HEAD", os.path.join(self.name, doc))
+            headers = self.headers.copy()
+            self.conn.request("HEAD", os.path.join(self.name, doc), headers=headers)
             response = self.conn.getresponse()
             if response.status == 200:
                 info = {

@@ -55,7 +55,7 @@ def push(settings, url="default", domain=None, *args, **kwargs):
     )
     backend = backend_module.get_backend(**backend_settings)
 
-    lookup_key = u"{resource.name}:{resource.text}"
+    lookup_key = u"{resource.domain}:{resource.name}:{resource.text}"
 
     # ensure if project info exists, create if not
     project_info = service.project_info(project)
@@ -79,7 +79,7 @@ def push(settings, url="default", domain=None, *args, **kwargs):
             if lookup_key.format(resource=res) not in pushed
         )
         revisions = service.update(project, changes)
-        # TODO: Update translations too?
+        # Translation are not updated on subsequent runs
         if revisions:
             print("Updated {} resources".format(len(revisions)))
     else:
@@ -145,7 +145,7 @@ def pull(settings, url="default", locale=None, *args, **kwargs):
         if to_translate.get(key, None) == res:
             sources[key] = {'id': res._id, 'rev': res._rev}
 
-    locale_list = locale and [locale] or backend.locales()
+    locale_list = locale and [locale] or [loc for loc in backend.locales() if loc != source_locale]
     for locale in locale_list:
         translated = []
         domain = None
