@@ -122,15 +122,17 @@ web.app({
         },
         domains: function(options, cb){
             var domains = [];
+            var progress;
             web.app.data.localeCode.to = options.locale;
             web.app.data.toLocale = Locale(options.locale);
             web.app.data.progress = web.app.data.stats[options.locale].progress;
             var from = web.app.data.stats[web.app.data.localeCode.from];
             var to = web.app.data.stats[options.locale];
-            for (var domain in to.domains){
+            for (var domain in from.domains){
+                progress = domain in to.domains ? to.domains[domain] : 0;
                 domains.push({
                     title: domain,
-                    progress: to.domains[domain]*100/from.domains[domain]
+                    progress: progress*100/from.domains[domain]
                 });
             }
             web.app.data.domains = domains;

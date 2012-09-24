@@ -1,5 +1,5 @@
 function(doc){
-    if(doc.i18n && doc.i18n.domain){
-        emit([doc.i18n.locale, doc.i18n.domain], 1);
+    if(doc.type == "i18n.resource" && doc.domain){
+        emit(doc.domain, 1);
     }
 }
