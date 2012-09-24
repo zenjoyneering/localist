@@ -96,8 +96,8 @@ class Service(object):
         self.login()
         options = urlencode({
             "reduce": "false",
-            "startkey": '["{}", "{}"]'.format(project, locale),
-            "endkey": '["{}", "{}", {{}}]'.format(project, locale)
+            "startkey": '["{0}", "{1}"]'.format(project, locale),
+            "endkey": '["{0}", "{1}", {{}}]'.format(project, locale)
         })
         view = os.path.join(
             self.base_url,

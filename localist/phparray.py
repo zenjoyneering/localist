@@ -26,7 +26,7 @@ def parse_array(phpdata, varname, php_bin="php"):
         php_bin, stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
-    commands = "{}\nprint(json_encode(${}));".format(phpdata, varname)
+    commands = "{0}\nprint(json_encode(${1}));".format(phpdata, varname)
     (out, err) = php.communicate(commands)
     return json.loads(out, object_pairs_hook=OrderedDict)
 
@@ -40,10 +40,10 @@ def serialize_array(data, varname, php_bin="php"):
     #js = json.dumps(data).replace("'", r"\'").replace('\\\\', '\\')
     #js = re.sub(r"[^\\]'", r"\'", json.dumps(data))
     js = json.dumps(data).replace("''", r'\"').encode('string_escape')
-    commands = """<?php\nvar_export(json_decode('{}', true));""".format(js)
+    commands = """<?php\nvar_export(json_decode('{0}', true));""".format(js)
     (out, err) = php.communicate(commands)
     out = re.sub(ARRAY_BEAUTIFY['from'], ARRAY_BEAUTIFY['to'], out)
-    return "<?php\n${} = {};".format(varname, out)
+    return "<?php\n${0} = {1};".format(varname, out)
 
 
 def flatten(nested_dict, sep=".", start=""):
@@ -130,7 +130,7 @@ class PHPArray(Backend):
     def update(self, resources, locale, domain):
         """Update a domain in given locale with resources"""
         texts = OrderedDict(((res.name, res.message) for res in resources))
-        filename = "{}.php".format(domain)
+        filename = "{0}.php".format(domain)
         phpfile = os.path.join(self.path, locale, filename)
         # write
         outfile = open(phpfile, "w")

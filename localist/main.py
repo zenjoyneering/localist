@@ -22,7 +22,7 @@ COMMANDS = ["pull", "push", "diff", "stats"]
 def read_config(config):
     """Reads config files in order: /etc/{config}, $HOME/.{config}, .{config}"""
     cfg = SafeConfigParser()
-    cfg.read("/etc/{}".format(config))
+    cfg.read("/etc/{0}".format(config))
     cfg.read(os.path.join(os.environ['HOME'], ".{0}".format(config)))
     cfg.read(".{0}".format(config))
     return cfg
@@ -47,7 +47,7 @@ def push(settings, url="default", domain=None, *args, **kwargs):
         proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
     else:
         proxy = None
-    print('Pushing {}'.format(project))
+    print('Pushing {0}'.format(project))
     service = Service(url, proxy=proxy)
 
     # instantiating backend
@@ -55,7 +55,7 @@ def push(settings, url="default", domain=None, *args, **kwargs):
     backend_format = settings.get('translation', 'format')
     backend_settings = dict(settings.items(backend_format))
     backend_module = __import__(
-        "localist.{}".format(backend_format), fromlist=["localist"]
+        "localist.{0}".format(backend_format), fromlist=["localist"]
     )
     backend = backend_module.get_backend(**backend_settings)
 
@@ -85,13 +85,13 @@ def push(settings, url="default", domain=None, *args, **kwargs):
         revisions = service.update(project, changes)
         # Translation are not updated on subsequent runs
         if revisions:
-            print("Updated {} resources".format(len(revisions)))
+            print("Updated {0} resources".format(len(revisions)))
     else:
         print("Making an first push to the workspace""")
         # here we 'cache' list for guarantee that order will not change
         resources = list(backend.resources(source_locale, domain))
         revisions = service.update(project, resources)
-        print("Uploaded {} {} resources".format(len(revisions), source_locale))
+        print("Uploaded {0} {1} resources".format(len(revisions), source_locale))
         print("Uploading translations...")
         # TODO: Refactor as a separate *translations* function | backend method
         # TODO: Replace domain by source's value, olny for android so must go
@@ -110,7 +110,7 @@ def push(settings, url="default", domain=None, *args, **kwargs):
                     (res.source, res.domain) = meta
                 translations.append(res)
             revisions = service.update(project, translations)
-            print("Uploaded {} {} resources".format(len(revisions), locale))
+            print("Uploaded {0} {1} resources".format(len(revisions), locale))
 
 
 def pull(settings, url="default", locale=None, *args, **kwargs):
@@ -123,7 +123,7 @@ def pull(settings, url="default", locale=None, *args, **kwargs):
         proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
     else:
         proxy = None
-    print('Pulling {} translations'.format(project))
+    print('Pulling {0} translations'.format(project))
     service = Service(url, proxy=proxy)
 
     # instantiating backend
@@ -131,7 +131,7 @@ def pull(settings, url="default", locale=None, *args, **kwargs):
     backend_format = settings.get('translation', 'format')
     backend_settings = dict(settings.items(backend_format))
     backend_module = __import__(
-        "localist.{}".format(backend_format), fromlist=["localist"]
+        "localist.{0}".format(backend_format), fromlist=["localist"]
     )
     backend = backend_module.get_backend(**backend_settings)
 
@@ -185,7 +185,7 @@ def diff(settings, url="default", *args, **kwargs):
         proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
     else:
         proxy = None
-    print('Getting diff for {} sources'.format(project))
+    print('Getting diff for {0} sources'.format(project))
     service = Service(url, proxy=proxy)
 
     # instantiating backend
@@ -193,7 +193,7 @@ def diff(settings, url="default", *args, **kwargs):
     backend_format = settings.get('translation', 'format')
     backend_settings = dict(settings.items(backend_format))
     backend_module = __import__(
-        "localist.{}".format(backend_format), fromlist=["localist"]
+        "localist.{0}".format(backend_format), fromlist=["localist"]
     )
     backend = backend_module.get_backend(**backend_settings)
 
@@ -214,7 +214,7 @@ def diff(settings, url="default", *args, **kwargs):
     print(service_sources - local_sources)
 
     for locale in backend.locales():
-        print("Getting diff for {} translations".format(locale))
+        print("Getting diff for {0} translations".format(locale))
         local_sources = frozenset((
             lookup_key.format(resource=res)
             for res in backend.resources(locale=locale)
@@ -224,15 +224,15 @@ def diff(settings, url="default", *args, **kwargs):
             for res in service.resources(project, locale)
         ))
         local_new = sorted(local_sources - service_sources)
-        print("Local unique resources: {}".format(len(local_new)))
+        print("Local unique resources: {0}".format(len(local_new)))
         remote_new = sorted(service_sources - local_sources)
-        print("Remote unique resources: {}".format(len(remote_new)))
+        print("Remote unique resources: {0}".format(len(remote_new)))
 
 
 def stats(settings, *args, **kwrags):
     """Display duplacation stats on resources"""
     project = settings.get("translation", "project")
-    title = "Statistics on {}".format(project)
+    title = "Statistics on {0}".format(project)
     print(title)
     print("=" * len(title))
     print("")
@@ -240,7 +240,7 @@ def stats(settings, *args, **kwrags):
     backend_format = settings.get('translation', 'format')
     backend_settings = dict(settings.items(backend_format))
     backend_module = __import__(
-        "localist.{}".format(backend_format), fromlist=["localist"]
+        "localist.{0}".format(backend_format), fromlist=["localist"]
     )
     backend = backend_module.get_backend(**backend_settings)
     text_to_key = {}
@@ -250,10 +250,10 @@ def stats(settings, *args, **kwrags):
             text_to_key[res.text] = []
         text_to_key[res.text].append(res)
         total += 1
-    print("{} messages in project".format(total))
+    print("{0} messages in project".format(total))
     for locale in backend.locales():
         resources = [res for res in backend.resources(locale=locale)]
-        print ("{} translation for {} locale".format(len(resources), locale))
+        print ("{0} translation for {1} locale".format(len(resources), locale))
     print("")
     repeats = {}
     for text, dups in text_to_key.items():
@@ -265,7 +265,7 @@ def stats(settings, *args, **kwrags):
 
     for r in sorted(repeats.keys()):
         count = repeats[r]
-        print("{} messages repeated {} times ({}%)".format(count, r, (count * 100 / total)))
+        print("{0} messages repeated {1} times ({2}%)".format(count, r, (count * 100 / total)))
 
     print("")
     print("Checking for keys, available only in translations and not in sources")
@@ -281,11 +281,11 @@ def stats(settings, *args, **kwrags):
                 #print(u"Resource {resource.name} from {resource.locale} not found in {resource.domain}".format(resource=res))
                 total += 1
     print("===============")
-    print("Total {} keys seem to be deprecated and will be removed on next pull".format(total))
+    print("Total {0} keys seem to be deprecated and will be removed on next pull".format(total))
 
 
 def usage(*args, **kwargs):
-    print "Available commands: {}".format(", ".join(COMMANDS))
+    print "Available commands: {0}".format(", ".join(COMMANDS))
 
 
 def main():
