@@ -9,7 +9,11 @@ import sys
 from ConfigParser import SafeConfigParser
 from localist.api import Service
 import argparse
-from collections import OrderedDict
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 
 
 COMMANDS = ["pull", "push", "diff", "stats"]
