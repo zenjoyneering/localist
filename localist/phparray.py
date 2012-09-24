@@ -23,6 +23,9 @@ def parse_array(phpdata, varname, php_bin="php"):
     )
     commands = "{}\nprint(json_encode(${}));".format(phpdata, varname)
     (out, err) = php.communicate(commands)
+    if err:
+        print err
+        return {}
     return json.loads(out, object_pairs_hook=OrderedDict)
 
 
@@ -37,6 +40,8 @@ def serialize_array(data, varname, php_bin="php"):
     js = json.dumps(data).replace("''", r'\"').encode('string_escape')
     commands = """<?php\nvar_export(json_decode('{}', true));""".format(js)
     (out, err) = php.communicate(commands)
+    if err:
+        print err
     out = re.sub(ARRAY_BEAUTIFY['from'], ARRAY_BEAUTIFY['to'], out)
     return "<?php\n${} = {};".format(varname, out)
 
