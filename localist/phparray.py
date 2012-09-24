@@ -6,8 +6,13 @@ import os
 import subprocess
 import json
 from glob import glob
-from collections import OrderedDict
 import re
+
+# support for 2.6
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 
 ARRAY_BEAUTIFY = {
     "from": re.compile("=>\s*array\s?[(]"),
