@@ -1,8 +1,6 @@
 DB_NAME = http://admin:admin@localhost:5984/l10n/
 AUTH_DB = http://admin:admin@localhost:5984/_users/
 
-#DB_NAME = http://admin:v6hSucoF@web148.verumnets.ru:5984/l10n/
-
 default: refresh
 
 refresh: dropdb service push

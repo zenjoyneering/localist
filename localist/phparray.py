@@ -15,10 +15,10 @@ ARRAY_BEAUTIFY = {
 }
 
 
-def parse_array(phpdata, varname):
+def parse_array(phpdata, varname, php_bin="php"):
     """Parses an php array assignment"""
     php = subprocess.Popen(
-        "php", stdin=subprocess.PIPE,
+        php_bin, stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     commands = "{}\nprint(json_encode(${}));".format(phpdata, varname)
@@ -26,10 +26,10 @@ def parse_array(phpdata, varname):
     return json.loads(out, object_pairs_hook=OrderedDict)
 
 
-def serialize_array(data, varname):
+def serialize_array(data, varname, php_bin="php"):
     """Serializes dict as php array assignment expr"""
     php = subprocess.Popen(
-        "php", stdin=subprocess.PIPE,
+        php_bin, stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     #js = json.dumps(data).replace("'", r"\'").replace('\\\\', '\\')
@@ -78,10 +78,11 @@ class PHPArray(Backend):
     """PHP key-value arrays backed l10n resource storage"""
     LOCALE_DIR = "??_??"
 
-    def __init__(self, path, varname, filepattern="*.php", exclude=None):
+    def __init__(self, path, varname, filepattern="*.php", exclude=None, php_bin="php"):
         self.path = path
         self.varname = varname
         self.filepattern = filepattern
+        self.php_bin = php_bin
         if exclude:
             self.exclude = [it.strip() for it in exclude.split(',') if it]
         else:
@@ -116,7 +117,7 @@ class PHPArray(Backend):
             if domain in self.exclude:
                 # domain is excluded, so just skip
                 continue
-            entries = parse_array(open(domain_file).read(), self.varname)
+            entries = parse_array(open(domain_file).read(), self.varname, self.php_bin)
             entries = entries or {}
             for (key, val) in flatten(entries).items():
                 yield Resource(domain=domain, locale=locale, message=val, name=key)
@@ -128,7 +129,7 @@ class PHPArray(Backend):
         phpfile = os.path.join(self.path, locale, filename)
         # write
         outfile = open(phpfile, "w")
-        outfile.write(serialize_array(nested(texts), self.varname))
+        outfile.write(serialize_array(nested(texts), self.varname, self.php_bin))
         outfile.close()
 
 
