@@ -82,7 +82,7 @@ web.app({
                 if (web.app.data.translation.to[this._id]){
                     return web.app.data.translation.to[this._id].message;
                 } else {
-                    return this.message;
+                    return "";//return this.message;
                 }
             };
             web.app.data.translateId = function(){
