@@ -5,7 +5,6 @@ Command-line script application.
 """
 
 import os
-import sys
 from ConfigParser import SafeConfigParser
 from localist.api import Service
 import argparse
@@ -14,9 +13,6 @@ try:
     from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
-
-
-COMMANDS = ["pull", "push", "diff", "stats"]
 
 
 def read_config(config):
@@ -37,7 +33,7 @@ def lookup_table(resources, revisions, key_format):
     return lookup
 
 
-def push(settings, url="default", domain=None, *args, **kwargs):
+def push(settings, url="default", domain=None, import_all=False, *args, **kwargs):
     """Push all localizible resources to service"""
     url = settings.get('urls', url) or url
     project = settings.get("translation", "project")
@@ -78,20 +74,18 @@ def push(settings, url="default", domain=None, *args, **kwargs):
     ))
     if pushed:
         # TODO: Refactor as a separate *changes* function
-        changes = (
+        changes = [
             res for res in backend.resources(source_locale, domain)
             if lookup_key.format(resource=res) not in pushed
-        )
+        ]
         revisions = service.update(project, changes)
-        # Translation are not updated on subsequent runs
-        if revisions:
-            print("Updated {0} resources".format(len(revisions)))
     else:
         print("Making an first push to the workspace""")
         # here we 'cache' list for guarantee that order will not change
-        resources = list(backend.resources(source_locale, domain))
-        revisions = service.update(project, resources)
-        print("Uploaded {0} {1} resources".format(len(revisions), source_locale))
+        changes = list(backend.resources(source_locale, domain))
+        revisions = service.update(project, changes)
+    print("Uploaded {0} {1} resources".format(len(revisions), source_locale))
+    if not pushed or import_all:
         print("Uploading translations...")
         # TODO: Refactor as a separate *translations* function | backend method
         # TODO: Replace domain by source's value, olny for android so must go
@@ -99,7 +93,7 @@ def push(settings, url="default", domain=None, *args, **kwargs):
         # TODO: lookup key should be defined by backend
         key = u"{resource.domain}.{resource.name}:{resource.is_plural}"
         source_ids = {}
-        for (res, rev) in zip(resources, revisions):
+        for (res, rev) in zip(changes, revisions):
             source_ids[key.format(resource=res)] = (rev, res.domain)
         locales = (locale for locale in backend.locales() if locale != source_locale)
         for locale in locales:
@@ -230,7 +224,7 @@ def diff(settings, url="default", *args, **kwargs):
 
 
 def stats(settings, *args, **kwrags):
-    """Display duplacation stats on resources"""
+    """Display duplication stats on resources"""
     project = settings.get("translation", "project")
     title = "Statistics on {0}".format(project)
     print(title)
@@ -284,12 +278,27 @@ def stats(settings, *args, **kwrags):
     print("Total {0} keys seem to be deprecated and will be removed on next pull".format(total))
 
 
-def usage(*args, **kwargs):
-    print "Available commands: {0}".format(", ".join(COMMANDS))
-
-
 def main():
     parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers()
+
+    push_parser = subparsers.add_parser('push', help=push.__doc__)
+    push_parser.add_argument('-d', '--domain', help="domain to push")
+    push_parser.add_argument('--import-all', action='store_true', help="import translations too")
+    push_parser.set_defaults(func=push)
+
+    pull_parser = subparsers.add_parser('pull', help=pull.__doc__)
+    pull_parser.add_argument('-l', '--locale', help="locale to pull")
+    pull_parser.set_defaults(func=pull)
+
+    subparsers.add_parser('stats', help=stats.__doc__).set_defaults(func=stats)
+    subparsers.add_parser('diff', help=diff.__doc__).set_defaults(func=diff)
+
+    opts = parser.parse_args()
+    settings = read_config("localistrc")
+    opts.func(settings, **vars(opts))
+
+    """
     parser.add_argument('command')
     parser.add_argument('-l', '--locale')
     parser.add_argument('-d', '--domain')
@@ -298,6 +307,7 @@ def main():
     command = globals()[cmd]
     opts = vars(parser.parse_args())
     command(settings, **opts)
+    """
 
 if __name__ == "__main__":
     main()
