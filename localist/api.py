@@ -91,14 +91,21 @@ class Service(object):
         self.conn.close()
         return status
 
-    def resources(self, project, locale):
+    def resources(self, project, locale, domain=None):
         """Get all resource for project in given locale"""
         self.login()
-        options = urlencode({
-            "reduce": "false",
-            "startkey": '["{0}", "{1}"]'.format(project, locale),
-            "endkey": '["{0}", "{1}", {{}}]'.format(project, locale)
-        })
+        if domain:
+            options = urlencode({
+                "reduce": "false",
+                "startkey": '["{0}", "{1}", "{2}"]'.format(project, locale, domain),
+                "endkey": '["{0}", "{1}", "{2}", {{}}]'.format(project, locale, domain)
+            })
+        else:
+            options = urlencode({
+                "reduce": "false",
+                "startkey": '["{0}", "{1}"]'.format(project, locale),
+                "endkey": '["{0}", "{1}", {{}}]'.format(project, locale)
+            })
         view = os.path.join(
             self.base_url,
             "{url}?{options}".format(url=self.RESOURCES_URI, options=options)

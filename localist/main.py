@@ -108,7 +108,7 @@ def push(settings, url="default", domain=None, import_all=False, *args, **kwargs
             print("Uploaded {0} {1} resources".format(len(revisions), locale))
 
 
-def pull(settings, url="default", locale=None, *args, **kwargs):
+def pull(settings, url="default", locale=None, domain=None, *args, **kwargs):
     """Pull all translations for local resources from service"""
     url = settings.get('urls', url) or url
     project = settings.get("translation", "project")
@@ -134,7 +134,7 @@ def pull(settings, url="default", locale=None, *args, **kwargs):
 
     to_translate = OrderedDict((
         (lookup_key.format(resource=res), res)
-        for res in backend.resources(locale=source_locale)
+        for res in backend.resources(source_locale, domain)
     ))
     # for every resource from server if it's text same as local
     # save source doc id to choose right one from translations
@@ -146,28 +146,26 @@ def pull(settings, url="default", locale=None, *args, **kwargs):
 
     locale_list = locale and [locale] or [loc for loc in backend.locales() if loc != source_locale]
     for locale in locale_list:
-        translated = []
-        domain = None
         translations = {}
-        for res in service.resources(project, locale):
+        for res in service.resources(project, locale, domain):
             lookup = lookup_key.format(resource=res)
             if sources.get(lookup, None) == res.source:
                 translations[lookup] = res
+        translated = []
+        current_domain = None
         for (key, source) in to_translate.items():
             res = translations.get(key, None)
             if res is None:
                 continue
-            if domain and res.domain != domain and translated:
+            if current_domain and res.domain != current_domain and translated:
                 # the new domain begins, so push current
-                #print("Updating {} translations for {}".format(locale, domain))
-                backend.update(translated, locale, domain)
+                backend.update(translated, locale, current_domain)
                 translated = []
             translated.append(res)
-            domain = res.domain
-        if domain and translated:
-            # update the last one
-            #print("Updating {} translations for {}".format(locale, domain))
-            backend.update(translated, locale, domain)
+            current_domain = res.domain
+        # update the last one
+        if current_domain and translated:
+            backend.update(translated, locale, current_domain)
 
 
 def diff(settings, url="default", *args, **kwargs):
@@ -290,6 +288,7 @@ def main():
 
     pull_parser = subparsers.add_parser('pull', help=pull.__doc__)
     pull_parser.add_argument('-l', '--locale', help="locale to pull")
+    pull_parser.add_argument('-d', '--domain', help="domain to push")
     pull_parser.set_defaults(func=pull)
 
     subparsers.add_parser('stats', help=stats.__doc__).set_defaults(func=stats)
