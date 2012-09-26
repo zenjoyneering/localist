@@ -70,7 +70,7 @@ def push(settings, url="default", domain=None, import_all=False, *args, **kwargs
     pushed = frozenset((
         lookup_key.format(resource=res)
         for res
-        in service.resources(project, source_locale)
+        in service.resources(project, source_locale, domain)
     ))
     if pushed:
         # TODO: Refactor as a separate *changes* function
@@ -283,7 +283,6 @@ def main():
 
     push_parser = subparsers.add_parser('push', help=push.__doc__)
     push_parser.add_argument('-d', '--domain', help="domain to push")
-    push_parser.add_argument('--import-all', action='store_true', help="import translations too")
     push_parser.set_defaults(func=push)
 
     pull_parser = subparsers.add_parser('pull', help=pull.__doc__)
