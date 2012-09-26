@@ -148,3 +148,29 @@ class Service(object):
         )
         resp = json.loads(self.conn.getresponse().read())
         return resp
+
+    def drop(self, project, locale, domain=None):
+        """Deletes messages from service in given locale for domain"""
+        # walk over all resources that match search options,
+        # and make an _bulk_docs with _deleted: true key
+        docs = []
+        for res in self.resources(project, locale, domain):
+            docs.append({
+                "_id": res._id,
+                "_rev": res._rev,
+                "_deleted": True
+            })
+        if not docs:
+            return []
+        bulk = {'docs': docs}
+        bulk_docs_url = os.path.join(self.base_url, "_bulk_docs")
+        headers = {
+            'Content-Type': "application/json",
+            'Cookie': self._auth_token
+        }
+        self.conn.request(
+            'POST', bulk_docs_url,
+            body=json.dumps(bulk), headers=headers
+        )
+        resp = json.loads(self.conn.getresponse().read())
+        return resp

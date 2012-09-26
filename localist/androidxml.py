@@ -38,9 +38,9 @@ class AndroidXML(object):
     TRANSLATED = "values-*"     # translated resources patterns
     SOURCE = "values"           # source strings
 
-    def __init__(self, resource_dir="res", search=None):
+    def __init__(self, resource_dir="res", pattern=None):
         self.basepath = resource_dir
-        self.search = search or self.STRINGS
+        self.search = pattern or self.STRINGS
 
     def locales(self):
         """Return list of available locales, found in res-folder, w/o source"""
@@ -62,14 +62,15 @@ class AndroidXML(object):
     def resources(self, locale="en", domain=None):
         """Iterator on resources for given language code (or from values dir)"""
         values_dir = locale != "en" and "values-{}".format(locale) or "values"
-        search = os.path.join(self.basepath, values_dir, self.search)
+        pattern = domain and "{0}.xml".format(domain) or self.search
+        search = os.path.join(self.basepath, values_dir, pattern)
         for source in glob.glob(search):
             (_, fname) = os.path.split(source)
-            (domain, _) = os.path.splitext(fname)
+            (domain_file, _) = os.path.splitext(fname)
             xml = etree.parse(source)
             for node in xml.getroot():
                 options = {
-                    "domain": unicode(domain),
+                    "domain": unicode(domain_file),
                     "locale": unicode(locale)
                 }
                 if node.tag == 'string':

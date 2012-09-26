@@ -277,6 +277,21 @@ def stats(settings, *args, **kwrags):
     print("Total {0} keys seem to be deprecated and will be removed on next pull".format(total))
 
 
+def drop(settings, url="default", locale=None, domain=None, *args, **kwargs):
+    """Drop all strings in given domain from service"""
+    url = settings.get('urls', url) or url
+    project = settings.get("translation", "project")
+    locale_to_delete = locale or settings.get("translation", "source_locale")
+    if settings.has_section('proxy'):
+        proxy_opts = dict(settings.items('proxy'))
+        proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
+    else:
+        proxy = None
+    service = Service(url, proxy=proxy)
+    revs = service.drop(project, locale_to_delete, domain)
+    print("{0} messages deleted from service".format(len(revs)))
+
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
@@ -292,6 +307,11 @@ def main():
 
     subparsers.add_parser('stats', help=stats.__doc__).set_defaults(func=stats)
     subparsers.add_parser('diff', help=diff.__doc__).set_defaults(func=diff)
+
+    drop_parser = subparsers.add_parser('drop', help=drop.__doc__)
+    drop_parser.add_argument('-d', '--domain', help="domain to delete")
+    drop_parser.add_argument('-l', '--locale', help="locale to delete")
+    drop_parser.set_defaults(func=drop)
 
     opts = parser.parse_args()
     settings = read_config("localistrc")
