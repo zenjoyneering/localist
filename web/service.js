@@ -140,7 +140,7 @@ web.app({
         },
         translations: function(options, cb){
             var source_msgs = web.app.data.stats[options.from].domains[options.domain];
-            var translated_msg = web.app.data.stats[options.to].domains[options.domain];
+            var translated_msg = web.app.data.stats[options.to].domains[options.domain] || 0;
             web.app.data.progress = translated_msg*100/source_msgs;
             var keys;
             web.app.data.translation = {
