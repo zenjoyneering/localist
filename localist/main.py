@@ -103,7 +103,8 @@ def push(settings, url="default", domain=None, import_all=False, *args, **kwargs
                 meta = source_ids.get(key.format(resource=res))
                 if meta:
                     (res.source, res.domain) = meta
-                translations.append(res)
+                    # skip messages without source for now
+                    translations.append(res)
             revisions = service.update(project, translations)
             print("Uploaded {0} {1} resources".format(len(revisions), locale))
 
