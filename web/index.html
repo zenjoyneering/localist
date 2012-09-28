@@ -40,7 +40,7 @@
                 <h3 class="span10">
                     Translation workspace
                         <div class="progress">
-                            <div class="bar" style="width: {{progress}}%"></div>
+                            <div class="bar" style="width: {{progress}}%;"></div>
                         </div>
                 </h3>
                 <div class="span2 userbox">
@@ -68,7 +68,7 @@
                         </td>
                         <td>
                             <div class="progress progress-success">
-                                <div class="bar" style="width: {{progress}}%"></div>
+                                <div class="bar" style="width: {{progress}}%;"></div>
                             </div>
                         </td>
                     </tr>
@@ -82,7 +82,7 @@
                     Translating
                     <a href="#projects">{{project.title}}</a>
                         <div class="progress">
-                            <div class="bar" style="width: {{progress}}%"></div>
+                            <div class="bar" style="width: {{progress}}%;"></div>
                         </div>
                 </h3>
                 <div class="span2 userbox">
@@ -107,10 +107,11 @@
                             <a href="#domains?project={{project._id}}&locale={{code}}">
                                 {{locale.name}} ({{locale.localName}})
                             </a>
+                            <span>({{untranslated}} untranslated messages)</span>
                         </td>
                         <td>
                             <div class="progress progress-success">
-                                <div class="bar" style="width: {{progress}}%"></div>
+                                <div class="bar" style="width: {{progress}}%;"></div>
                             </div>
                         </td>
                     </tr>
@@ -129,7 +130,7 @@
                             {{toLocale.name}}
                         </a>
                         <div class="progress">
-                            <div class="bar" style="width: {{progress}}%"></div>
+                            <div class="bar" style="width: {{progress}}%;"></div>
                         </div>
                 </h3>
                 <div class="span2 userbox">
@@ -157,11 +158,11 @@
                             <a href="#translate?project={{project._id}}&domain={{title}}&from={{localeCode.from}}&to={{localeCode.to}}">
                                 {{title}}
                             </a>
-                            <!--<span>(x obsolete, y discarded, z unreviewed messages)</span>-->
+                            <span>({{untranslated}} untrasnslated messages)</span>
                         </td>
                         <td>
                             <div class="progress progress-success">
-                                <div class="bar" style="width: {{progress}}%"></div>
+                                <div class="bar" style="width: {{progress}}%;"></div>
                             </div>
                         </td>
                     </tr>
@@ -190,7 +191,7 @@
                     </a>
                     file has {{untranslated}} untranslated messages)
                     <div class="progress">
-                        <div class="bar" style="width: {{progress}}%"></div>
+                        <div class="bar" style="width: {{progress}}%;"></div>
                     </div>
                 </h3>
                 <!--

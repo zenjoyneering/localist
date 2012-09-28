@@ -75,8 +75,14 @@ web.app({
                     messages: 0
                 };
                 var stats = {};
+                for (var i = 0; i<web.app.data.project.translations.length; i++){
+                    stats[web.app.data.project.translations[i]] = {
+                        message_count: 0,
+                        domains: {}
+                    };
+                }
                 var domain, message_count, localeCode;
-                for (var i=0; i<data.rows.length; i++){
+                for (i=0; i<data.rows.length; i++){
                     localeCode = data.rows[i].key[1];
                     domain = data.rows[i].key[2];
                     message_count = data.rows[i].value;
@@ -101,10 +107,13 @@ web.app({
                 for (var code in stats){
                     var progress = stats[code] ?
                         stats[code].message_count*100/sourceLocale.messages : 0;
+                    var untranslated = stats[code] ?
+                        sourceLocale.messages - stats[code].message_count : sourceLocale.messages;
                     langs.push({
                         code: code,
                         locale: Locale(code),
-                        progress: progress
+                        progress: progress,
+                        untranslated: untranslated
                     });
                     if (!stats[code]){
                         stats[code] = {};
@@ -122,7 +131,7 @@ web.app({
         },
         domains: function(options, cb){
             var domains = [];
-            var progress;
+            var progress, untranslated;
             web.app.data.localeCode.to = options.locale;
             web.app.data.toLocale = Locale(options.locale);
             web.app.data.progress = web.app.data.stats[options.locale].progress;
@@ -130,9 +139,11 @@ web.app({
             var to = web.app.data.stats[options.locale];
             for (var domain in from.domains){
                 progress = domain in to.domains ? to.domains[domain] : 0;
+                untranslated = from.domains[domain] - progress;
                 domains.push({
                     title: domain,
-                    progress: progress*100/from.domains[domain]
+                    progress: progress*100/from.domains[domain],
+                    untranslated: untranslated
                 });
             }
             web.app.data.domains = domains;

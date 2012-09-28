@@ -1,4 +1,4 @@
-DB_NAME = http://admin:admin@localhost:5984/l10n/
+#DB_NAME = http://admin:admin@localhost:5984/l10n/
 AUTH_DB = http://admin:admin@localhost:5984/_users/
 
 default: refresh

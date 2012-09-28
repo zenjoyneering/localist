@@ -133,5 +133,25 @@ var Locale = (function(){
         }
     };
 
+    locales.sv = {
+        name: "Swedish",
+        localName: "Svenska",
+        code: "sv_SE",
+        pluralForms: [quantity.ONE, quantity.OTHER],
+        plural: function(n){
+            return n != 1;
+        }
+    };
+
+    locales.pt = {
+        name: "Portuguese",
+        localName: "Português",
+        code: "pt_PT",
+        pluralForms: [quantity.ONE, quantity.OTHER],
+        plural: function(n){
+            return n != 1;
+        }
+    };
+
     return Locale;
 })();
