@@ -84,9 +84,9 @@ def push(settings, url="default", domain=None, import_all=False, *args, **kwargs
         # here we 'cache' list for guarantee that order will not change
         changes = list(backend.resources(source_locale, domain))
         revisions = service.update(project, changes)
-    if revisions:
+    if revisions:  # and (not pushed or import_all):
+        # TODO: Mark changed messages as obsolete
         print("Uploaded {0} {1} resources".format(len(revisions), source_locale))
-    if revisions and (not pushed or import_all):
         print("Uploading translations...")
         # TODO: Refactor as a separate *translations* function | backend method
         # TODO: Replace domain by source's value, olny for android so must go
