@@ -27,7 +27,7 @@ var Locale = (function(){
             name: code,
             localName: code,
             code: code,
-            pluralForms: 2,       // this is valid for most languages
+            pluralForms: [quantity.ONE, quantity.OTHER], // this is valid for most languages
             plural: function(n){
                 return n>1;       // most common forms is "n>0" and "n!=1"
             }
@@ -150,6 +150,28 @@ var Locale = (function(){
         pluralForms: [quantity.ONE, quantity.OTHER],
         plural: function(n){
             return n != 1;
+        }
+    };
+
+    locales.et = {
+        name: "Estonian",
+        localName: "Eesti",
+        code: "et_EE",
+        pluralForms: [quantity.ONE, quantity.OTHER],
+        plural: function(n){
+            return n != 1;
+        }
+    };
+
+    locales.lt = {
+        name: "Lithuanian",
+        localName: "Lietuvos",
+        code: "lt_LT",
+        pluralForms: [quantity.ONE, quantity.FEW, quantity.OTHER],
+        plural: function(n){
+            return ( n%10==1 && n%100!=11 ?
+                0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2
+            );
         }
     };
 
