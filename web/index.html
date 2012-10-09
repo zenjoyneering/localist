@@ -224,8 +224,8 @@
                     </thead>
                     <tbody>
                         <!-- {{#translation.from}} -->
-                        <!-- {{#value.message}} -->
                         <!-- {{#value}} -->
+                        <!-- {{^resourceIsPlural}} -->
                         <tr class="{{resource_status}}">
                             <td>
                                 {{message}}
@@ -242,11 +242,9 @@
                                     >{{translate}}</textarea>
                             </td>
                         </tr>
-                        <!-- {{/value}} -->
-                        <!-- {{/value.message}} -->
+                        <!-- {{/resourceIsPlural}} -->
                  
-                        <!-- {{#value.plurals}} -->
-                        <!-- {{#value}} -->
+                        <!-- {{#resourceIsPlural}} -->
                         <tr class="{{resource_status}}">
                             <td>
                                 <!-- {{#value.plurals}} -->
@@ -273,8 +271,8 @@
                                 {{/pluralsTo}}
                             </td>
                         </tr>
+                        <!-- {{/resourceIsPlural}} -->
                         <!-- {{/value}} -->
-                        <!-- {{/value.plurals}} -->
                         <!-- {{/translation.from}} -->
                     </tbody>
                 </table></div>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Localist</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width; initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="lib/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
+        <link rel="stylesheet" type="text/css" href="billing/billing.css"/>
+
+        <script type="text/javascript" src="lib/js/jquery-1.7.2.min.js">
+        </script>
+        <script type="text/javascript" src="lib/js/bootstrap.min.js">
+        </script>
+        <script type="text/javascript" src="lib/js/moment.min.js">
+        </script>
+        <script type="text/javascript" src="lib/js/moment.lang.ru.js">
+        </script>
+        <script type="text/javascript" src="lib/js/hogan-2.0.0.min.js">
+        </script>
+        <script type="text/javascript" src="lib/js/jquery.hogan.js">
+        </script>
+
+        <script type="text/javascript" src="locale.js">
+        </script>
+        <script type="text/javascript" src="wuxels.js">
+        </script>
+        <script type="text/javascript" src="billing/app.js">
+        </script>
+        <script type="text/javascript" src="billing/ui.js">
+        </script>
+        <script type="text/javascript" src="billing/service.js">
+        </script>
+
+
+    </head>
+    <body>
+        <section class="container-fluid" id="projects" data-unit="projects">
+            <div class="page-header row-fluid">
+                <h3 class="span10">
+                    <a href="index.html">Translation workspace</a> | Billing
+                    <form class="well form-search date-filter">
+                        Расчетный период:
+                        <input type="text" class="date" name="start_date" id="start_date"/>
+                        <span>/</span>
+                        <input type="text" class="month" name="start_month" id="start_month"/>
+                        <span>/</span>
+                        <input type="text" class="year" name="start_year" id="start_year"/>
+                        <span>&nbsp;-&nbsp;</span>
+                        <input type="text" class="date" name="end_date" id="end_date"/>
+                        <span>/</span>
+                        <input type="text" class="month" name="end_month" id="end_month"/>
+                        <span>/</span>
+                        <input type="text" class="year" name="end_year" id="end_year"/>
+                        <button class="btn btn-primary">Рассчитать</button>
+                    </form>
+                </h3>
+                <div class="span2 userbox">
+                    <h4>Hello, {{user.name}}!</h4>
+                    <ul>
+                        <li><a href="#">Change profile</a></li>
+                        <li><a href="#logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+            <table class="bill table table-striped">
+                <thead>
+                    <tr>
+                        <th>Язык</th>
+                        <th>Переводчик</th>
+                        <th>Символы</th>
+                        <th>Стоимость символа (руб.)</th>
+                        <th>Сумма (руб.)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- {{#invoice}} -->
+                    <tr>
+                        <td>
+                            {{locale}}
+                        </td>
+                        <td>
+                            {{account}}
+                        </td>
+                        <td>
+                            {{symbols}}
+                        </td>
+                        <td>
+                            <input type="text"/>
+                        </td>
+                        <td>
+                            -
+                        </td>
+                    </tr>
+                    <!-- {{/invoice}} -->
+                </tbody>
+            </table>
+        </section>
+    </body>
+</html>
+

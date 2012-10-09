@@ -51,6 +51,12 @@ class PHPArrayTest(unittest.TestCase):
         parsed = parse_array(PHP_ARR, "some_var")
         self.assertEqual(parsed, PY_ARR)
 
+    def test_domain_name(self):
+        samples = ["some_file", "some.file", "some.file.list", "some-file.list.php", "some.file.list.php"]
+        expected = ["some_file.list", "some.file.list", "some.file.list", "some-file.list", "some.file.list"]
+        actual = [self.phparr.domain_name(entry) for entry in samples]
+        self.assertEqual(actual, expected)
+
     def test_serialize_parse(self):
         serialized = serialize_array(PY_ARR, "some_var")
         self.assertEqual(PY_ARR, parse_array(serialized, "some_var"))

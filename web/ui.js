@@ -92,6 +92,9 @@ web.app({
                     return "";
                 }
             };
+            web.app.data.resourceIsPlural = function(){
+                return 'plurals' in this ? true : false;
+            }
         },
         login: web.UI({
                 signin: function($node){

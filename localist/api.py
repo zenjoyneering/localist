@@ -14,6 +14,7 @@ class Service(object):
     """Localist web-service API"""
 
     RESOURCES_URI = "_design/i18n/_view/resources"
+    TRANSLATIONS_URI = '_design/i18n/_view/translations?{options}'
 
     def __init__(self, url, username=None, password=None, proxy=None):
         self.url = urlsplit(url)
@@ -149,6 +150,24 @@ class Service(object):
         resp = json.loads(self.conn.getresponse().read())
         return resp
 
+    def translations(self, resource):
+        """Return translations for given resource"""
+        self.login()
+        resource_id = isinstance(resource, Resource) and resource._id or resource
+        options = urlencode({
+            'startkey': '["{id}"]'.format(id=resource_id),
+            'endkey': '["{id}", {{}}]'.format(id=resource_id)
+        })
+        url = os.path.join(self.base_url, self.TRANSLATIONS_URI.format(options=options))
+        self.conn.connect()
+        self.conn.request("GET", url, headers={"Cookie": self._auth_token})
+        data = json.loads(self.conn.getresponse().read())
+        self.conn.close()
+        result = {}
+        for row in data['rows']:
+            result[row['key'][1]] = Resource(**row['value'])
+        return result
+
     def drop(self, project, locale, domain=None):
         """Deletes messages from service in given locale for domain"""
         # walk over all resources that match search options,
@@ -173,4 +192,30 @@ class Service(object):
             body=json.dumps(bulk), headers=headers
         )
         resp = json.loads(self.conn.getresponse().read())
+        return resp
+
+    def remove(self, resources):
+        self.login()
+        docs = []
+        for res in resources:
+            docs.append({
+                "_id": res._id,
+                "_rev": res._rev,
+                "_deleted": True
+            })
+        if not docs:
+            return
+        bulk = {'docs': docs}
+        bulk_docs_url = os.path.join(self.base_url, "_bulk_docs")
+        headers = {
+            'Content-Type': "application/json",
+            'Cookie': self._auth_token
+        }
+        self.conn.connect()
+        self.conn.request(
+            'POST', bulk_docs_url,
+            body=json.dumps(bulk), headers=headers
+        )
+        resp = json.loads(self.conn.getresponse().read())
+        self.conn.close()
         return resp

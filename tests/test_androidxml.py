@@ -32,6 +32,12 @@ class AndroidXMLTest(unittest.TestCase):
         actual_locales = sorted(self.androidxml.locales())
         self.assertEqual(expected_locales, actual_locales)
 
+    def test_domain_name(self):
+        samples = ["strings", "strings-file.xml", "strings-some.file.xml"]
+        expected = ["strings", "strings-file", "strings-some.file"]
+        actual = [self.androidxml.domain_name(entry) for entry in samples]
+        self.assertEqual(actual, expected)
+
     def test_domains(self):
         expected_domains = ["strings", "strings-fresh"]
         expected_domains.sort()
@@ -42,11 +48,11 @@ class AndroidXMLTest(unittest.TestCase):
     def test_update(self):
         # write predefinded messages
         msg_in = Resource(
-                domain="strings-fresh",
-                message="translated",
-                name="fresh_string_one",
-                project="test",
-                locale="ru"
+            domain="strings-fresh",
+            message="translated",
+            name="fresh_string_one",
+            project="test",
+            locale="ru"
         )
         self.androidxml.update([msg_in], locale="ru", domain="strings-fresh")
         # read and checkall

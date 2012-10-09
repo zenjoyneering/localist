@@ -82,6 +82,7 @@ def nested(flat_dict, sep="."):
 class PHPArray(Backend):
     """PHP key-value arrays backed l10n resource storage"""
     LOCALE_DIR = "??_??"
+    EXT = ".list"
 
     def __init__(self, path, varname, filepattern="*.php", exclude=None, php_bin="php"):
         self.path = path
@@ -108,6 +109,14 @@ class PHPArray(Backend):
             for fname
             in glob(search)
         ]
+
+    def domain_name(self, name):
+        if name.endswith(".php"):
+            return name[:-len(".php")]
+        if not name.endswith(".list"):
+            return name + ".list"
+        else:
+            return name
 
     def resources(self, locale, domain=None):
         """Yields a resources from php array"""

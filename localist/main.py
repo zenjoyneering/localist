@@ -54,6 +54,7 @@ def push(settings, url="default", domain=None, import_all=False, *args, **kwargs
         "localist.{0}".format(backend_format), fromlist=["localist"]
     )
     backend = backend_module.get_backend(**backend_settings)
+    domain = backend.domain_name(domain)  # *normalize* weird names
 
     lookup_key = u"{resource.domain}:{resource.name}:{resource.text}"
 
@@ -293,6 +294,35 @@ def drop(settings, url="default", locale=None, domain=None, *args, **kwargs):
     print("{0} messages deleted from service".format(len(revs)))
 
 
+def duplicates(settings, url="default", *args, **kwargs):
+    url = settings.get('urls', url) or url
+    project = settings.get("translation", "project")
+    source_locale = settings.get("translation", "source_locale")
+    if settings.has_section('proxy'):
+        proxy_opts = dict(settings.items('proxy'))
+        proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
+    else:
+        proxy = None
+    service = Service(url, proxy=proxy)
+    lookup_key = u"{resource.domain}:{resource.name}:{resource.text}"
+    resources = {}
+    duplicates = []
+    for res in service.resources(project, source_locale):
+        key = lookup_key.format(resource=res)
+        if key in resources:
+            duplicates.append(res)
+        else:
+            resources[key] = res
+    to_remove = []
+    for res in duplicates:
+        for (locale, translated) in service.translations(res).items():
+            if (translated.source['id'] == res._id and translated.source['rev'] == res._rev):
+                to_remove.append(translated)
+        to_remove.append(res)
+    revs = service.remove(to_remove)
+    print("{0} resources was removed from server".format(len(revs)))
+
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
@@ -313,6 +343,8 @@ def main():
     drop_parser.add_argument('-d', '--domain', help="domain to delete")
     drop_parser.add_argument('-l', '--locale', help="locale to delete")
     drop_parser.set_defaults(func=drop)
+
+    #subparsers.add_parser('duplicates', help=duplicates.__doc__).set_defaults(func=duplicates)
 
     opts = parser.parse_args()
     settings = read_config("localistrc")

@@ -37,6 +37,7 @@ class AndroidXML(object):
     STRINGS = "strings*.xml"    # localizeable files pattern
     TRANSLATED = "values-*"     # translated resources patterns
     SOURCE = "values"           # source strings
+    FILEEXT = ".xml"            # extension, that we cut from domain name
 
     def __init__(self, resource_dir="res", pattern=None):
         self.basepath = resource_dir
@@ -49,6 +50,13 @@ class AndroidXML(object):
             (_, values_dir) = os.path.split(dirname)
             (_, locale) = values_dir.split("-", 1)
             yield locale
+
+    def domain_name(self, domain):
+        """Split out *system* extensions from domain name"""
+        if domain.endswith(self.FILEEXT):
+            return domain[:-len(self.FILEEXT)]
+        else:
+            return domain
 
     def domains(self, locale=None):
         """Returl list of all domain files in values dir"""

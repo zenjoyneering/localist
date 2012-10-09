@@ -1,0 +1,13 @@
+.bill input{
+    text-align: right;
+}
+
+input.date, input.month {
+    width: 1.5em;
+    text-align: right;
+}
+
+input.year {
+    width: 2.5em;
+    text-align: right;
+}
