@@ -107,6 +107,7 @@ web.app({
                 for (var code in stats){
                     var progress = stats[code] ?
                         stats[code].message_count*100/sourceLocale.messages : 0;
+                    progress = progress.toFixed(0);
                     var untranslated = stats[code] ?
                         sourceLocale.messages - stats[code].message_count : sourceLocale.messages;
                     langs.push({

@@ -175,5 +175,67 @@ var Locale = (function(){
         }
     };
 
+    locales.el = {
+        name: "Greek",
+        localName: "ελληνικά",
+        code: "el_GR",
+        pluralForms: [quantity.ONE, quantity.OTHER],
+        plural: function(n){
+            return n!=1;
+        }
+    };
+
+    locales.pl = {
+        name: "Polish",
+        localName: "Polski",
+        code: "pl_PL",
+        pluralForms: [quantity.ONE, quantity.FEW, quantity.OTHER],
+        plural: function(n){
+            return ( n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);
+        }
+    };
+
+    locales.id = {
+        name: "Indonesian",
+        localName: "Indonesia",
+        code: "id_ID",
+        pluralForms: [quantity.ONE],
+        plural: function(n){
+            return 0;
+        }
+    };
+
+    locales.sr = {
+        name: "Serbian",
+        localName: "Српски",
+        code: "sr_RS",
+        pluralForms: [quantity.ONE, quantity.FEW, quantity.OTHER],
+        plural: function(n){
+            return ( n%10==1 && n%100!=11 ?
+                0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2
+            );
+        }
+    };
+
+    locales.ro = {
+        name: "Romanian",
+        localName: "Român",
+        code: "ro_RO",
+        pluralForms: [quantity.ONE, quantity.FEW, quantity.OTHER],
+        plural: function(n){
+            return (n==1 ? 0 : (n===0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);
+        }
+    };
+
+    locales.hu = {
+        name: "Hungarian",
+        localName: "Magyar",
+        code: "hu_HU",
+        pluralForms: [quantity.ONE, quantity.OTHER],
+        plural: function(n){
+            return n!=1;
+        }
+    };
+
     return Locale;
 })();
