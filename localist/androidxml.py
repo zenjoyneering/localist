@@ -37,6 +37,7 @@ class AndroidXML(object):
     STRINGS = "strings*.xml"    # localizeable files pattern
     TRANSLATED = "values-*"     # translated resources patterns
     SOURCE = "values"           # source strings
+    SOURCE_LOCALE = "en"        # source (default) locale
     FILEEXT = ".xml"            # extension, that we cut from domain name
 
     def __init__(self, resource_dir="res", pattern=None):
@@ -50,6 +51,8 @@ class AndroidXML(object):
             (_, values_dir) = os.path.split(dirname)
             (_, locale) = values_dir.split("-", 1)
             yield locale
+        # at last we should yield source locale too
+        yield self.SOURCE_LOCALE
 
     def domain_name(self, domain):
         """Split out *system* extensions from domain name"""
@@ -67,9 +70,10 @@ class AndroidXML(object):
             for fname in glob.glob(search)
         ]
 
-    def resources(self, locale="en", domain=None):
+    def resources(self, locale=None, domain=None):
         """Iterator on resources for given language code (or from values dir)"""
-        values_dir = locale != "en" and "values-{}".format(locale) or "values"
+        locale = locale or self.SOURCE_LOCALE
+        values_dir = locale != self.SOURCE_LOCALE and "values-{}".format(locale) or "values"
         pattern = domain and "{0}.xml".format(domain) or self.search
         search = os.path.join(self.basepath, values_dir, pattern)
         for source in glob.glob(search):
@@ -92,7 +96,10 @@ class AndroidXML(object):
 
     def update(self, resources, locale, domain):
         """Save resources by given locale in domain file"""
-        path = "values-{}/{}.xml".format(locale, domain)
+        if locale == self.SOURCE_LOCALE:
+            path = "values/{}.xml".format(domain)
+        else:
+            path = "values-{}/{}.xml".format(locale, domain)
         filename = os.path.join(self.basepath, path)
         xml = open(filename, 'w')
         # write xml header

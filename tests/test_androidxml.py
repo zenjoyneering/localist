@@ -28,7 +28,7 @@ class AndroidXMLTest(unittest.TestCase):
         self.assertTrue(u"Первая" in messages)
 
     def test_locales(self):
-        expected_locales = sorted(["ru", "es", "pt-rBR"])
+        expected_locales = sorted(["en", "ru", "es", "pt-rBR"])
         actual_locales = sorted(self.androidxml.locales())
         self.assertEqual(expected_locales, actual_locales)
 
