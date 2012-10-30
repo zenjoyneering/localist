@@ -54,7 +54,7 @@ def push(settings, url="default", domain=None, import_all=False, *args, **kwargs
         "localist.{0}".format(backend_format), fromlist=["localist"]
     )
     backend = backend_module.get_backend(**backend_settings)
-    domain = backend.domain_name(domain)  # *normalize* weird names
+    domain = domain and backend.domain_name(domain) or None  # *normalize* weird names
 
     lookup_key = u"{resource.domain}:{resource.name}:{resource.text}"
 
