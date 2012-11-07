@@ -55,7 +55,7 @@ var Locale = (function(){
         name: "Russian",
         localName: "Русский",
         code: "ru_RU",
-        pluralForms: [quantity.ONE, quantity.FEW, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.FEW, quantity.OTHER],
         plural: function(n){
             return ( n%10==1 && n%100!=11 ?
                 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2
@@ -67,7 +67,7 @@ var Locale = (function(){
         name: "English",
         localName: "English",
         code: "en_US",
-        pluralForms: [quantity.ONE, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.OTHER],
         plural: function(n){
             return n != 1;
         }
@@ -77,7 +77,7 @@ var Locale = (function(){
         name: "Spanish",
         localName: "Español",
         code: "es_ES",
-        pluralForms: [quantity.ONE, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.OTHER],
         plural: function(n){
             return n != 1;
         }
@@ -87,7 +87,7 @@ var Locale = (function(){
         name: "Deutch",
         localName: "Deutch",
         code: "de_DE",
-        pluralForms: [quantity.ONE, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.OTHER],
         plural: function(n) {
             return n != 1;
         }
@@ -97,7 +97,7 @@ var Locale = (function(){
         name: "French",
         localName: "Français",
         code: "fr_FR",
-        pluralForms: [quantity.ONE, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.OTHER],
         plural: function(n){
             return n > 1;
         }
@@ -107,7 +107,7 @@ var Locale = (function(){
         name: "Italian",
         localName: "Italiano",
         code: "it_IT",
-        pluralForms: [quantity.ONE, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.OTHER],
         plural: function(n){
             return n != 1;
         }
@@ -117,7 +117,7 @@ var Locale = (function(){
         name: "Turkish",
         localName: "Türk",
         code: "tr_TR",
-        pluralForms: [quantity.ONE, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.OTHER],
         plural: function(n){
             return n > 1;
         }
@@ -127,7 +127,7 @@ var Locale = (function(){
         name: "Korean",
         localName: "한국의",
         code: "ko_KO",
-        pluralForms: [quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.OTHER],
         plural: function(n){
             return 0;
         }
@@ -137,7 +137,7 @@ var Locale = (function(){
         name: "Swedish",
         localName: "Svenska",
         code: "sv_SE",
-        pluralForms: [quantity.ONE, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.OTHER],
         plural: function(n){
             return n != 1;
         }
@@ -147,7 +147,7 @@ var Locale = (function(){
         name: "Portuguese",
         localName: "Português",
         code: "pt_PT",
-        pluralForms: [quantity.ONE, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.OTHER],
         plural: function(n){
             return n != 1;
         }
@@ -157,7 +157,7 @@ var Locale = (function(){
         name: "Estonian",
         localName: "Eesti",
         code: "et_EE",
-        pluralForms: [quantity.ONE, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.OTHER],
         plural: function(n){
             return n != 1;
         }
@@ -167,7 +167,7 @@ var Locale = (function(){
         name: "Lithuanian",
         localName: "Lietuvos",
         code: "lt_LT",
-        pluralForms: [quantity.ONE, quantity.FEW, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.FEW, quantity.OTHER],
         plural: function(n){
             return ( n%10==1 && n%100!=11 ?
                 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2
@@ -179,7 +179,7 @@ var Locale = (function(){
         name: "Greek",
         localName: "ελληνικά",
         code: "el_GR",
-        pluralForms: [quantity.ONE, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.OTHER],
         plural: function(n){
             return n!=1;
         }
@@ -189,7 +189,7 @@ var Locale = (function(){
         name: "Polish",
         localName: "Polski",
         code: "pl_PL",
-        pluralForms: [quantity.ONE, quantity.FEW, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.FEW, quantity.OTHER],
         plural: function(n){
             return ( n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);
         }
@@ -199,7 +199,7 @@ var Locale = (function(){
         name: "Indonesian",
         localName: "Indonesia",
         code: "id_ID",
-        pluralForms: [quantity.ONE],
+        pluralForms: [quantity.ZERO, quantity.ONE],
         plural: function(n){
             return 0;
         }
@@ -209,7 +209,7 @@ var Locale = (function(){
         name: "Serbian",
         localName: "Српски",
         code: "sr_RS",
-        pluralForms: [quantity.ONE, quantity.FEW, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.FEW, quantity.OTHER],
         plural: function(n){
             return ( n%10==1 && n%100!=11 ?
                 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2
@@ -221,7 +221,7 @@ var Locale = (function(){
         name: "Romanian",
         localName: "Român",
         code: "ro_RO",
-        pluralForms: [quantity.ONE, quantity.FEW, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.FEW, quantity.OTHER],
         plural: function(n){
             return (n==1 ? 0 : (n===0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);
         }
@@ -231,7 +231,7 @@ var Locale = (function(){
         name: "Hungarian",
         localName: "Magyar",
         code: "hu_HU",
-        pluralForms: [quantity.ONE, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.OTHER],
         plural: function(n){
             return n!=1;
         }
@@ -241,7 +241,19 @@ var Locale = (function(){
         name: "Belarusian",
         localName: "Беларускі",
         code: "be_BE",
-        pluralForms: [quantity.ONE, quantity.FEW, quantity.OTHER],
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.FEW, quantity.OTHER],
+        plural: function(n){
+            return ( n%10==1 && n%100!=11 ?
+                0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2
+            );
+        }
+    };
+
+    locales.uk = {
+        name: "Ukrainian",
+        localName: "Українська",
+        code: "uk_UA",
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.FEW, quantity.OTHER],
         plural: function(n){
             return ( n%10==1 && n%100!=11 ?
                 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2

@@ -323,6 +323,29 @@ def duplicates(settings, url="default", *args, **kwargs):
     print("{0} resources was removed from server".format(len(revs)))
 
 
+def xmllint(settings, url="default", locale=None, *args, **kwargs):
+    from lxml.etree import XML
+    url = settings.get('urls', url) or url
+    project = settings.get("translation", "project")
+    source_locale = settings.get("translation", "source_locale")
+    if settings.has_section('proxy'):
+        proxy_opts = dict(settings.items('proxy'))
+        proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
+    else:
+        proxy = None
+    service = Service(url, proxy=proxy)
+    msg = u"Bad text at {resource.name} from {resource.domain}: {resource.text}"
+    for res in service.resources(project, locale or source_locale):
+        # check for validity
+        try:
+            x = XML('<?xml version="1.0" standalone="yes"?><!DOCTYPE html>\n<div>' + res.text + '</div>')
+        except Exception as ex:
+            #if not ex.message.startswith("Entity"):
+            print("-----------------------")
+            print(unicode(ex.message))
+            print(msg.format(resource=res))
+
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
@@ -345,6 +368,10 @@ def main():
     drop_parser.set_defaults(func=drop)
 
     #subparsers.add_parser('duplicates', help=duplicates.__doc__).set_defaults(func=duplicates)
+
+    lint_parser = subparsers.add_parser('xmllint')
+    lint_parser.add_argument('-l', '--locale')
+    lint_parser.set_defaults(func=xmllint)
 
     opts = parser.parse_args()
     settings = read_config("localistrc")
