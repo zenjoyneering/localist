@@ -294,35 +294,56 @@ def drop(settings, url="default", locale=None, domain=None, *args, **kwargs):
     print("{0} messages deleted from service".format(len(revs)))
 
 
-def duplicates(settings, url="default", *args, **kwargs):
+def status(settings, url="default", locale=None, domain=None, verbose=False, *args, **kwargs):
+    """Print translation status by domain name"""
     url = settings.get('urls', url) or url
-    project = settings.get("translation", "project")
     source_locale = settings.get("translation", "source_locale")
-    if settings.has_section('proxy'):
-        proxy_opts = dict(settings.items('proxy'))
-        proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
-    else:
-        proxy = None
-    service = Service(url, proxy=proxy)
-    lookup_key = u"{resource.domain}:{resource.name}:{resource.text}"
-    resources = {}
-    duplicates = []
-    for res in service.resources(project, source_locale):
-        key = lookup_key.format(resource=res)
-        if key in resources:
-            duplicates.append(res)
-        else:
-            resources[key] = res
-    to_remove = []
-    for res in duplicates:
-        for (locale, translated) in service.translations(res).items():
-            if (translated.source['id'] == res._id and translated.source['rev'] == res._rev):
-                to_remove.append(translated)
-        to_remove.append(res)
-    revs = service.remove(to_remove)
-    print("{0} resources was removed from server".format(len(revs)))
+    # this is not needed right now, but should be used, when
+    #project = settings.get("translation", "project")
+    #if settings.has_section('proxy'):
+    #    proxy_opts = dict(settings.items('proxy'))
+    #    proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
+    #else:
+    #    proxy = None
+    #service = Service(url, proxy=proxy)
+    backend_format = settings.get('translation', 'format')
+    backend_settings = dict(settings.items(backend_format))
+    backend_module = __import__(
+        "localist.{0}".format(backend_format), fromlist=["localist"]
+    )
+    backend = backend_module.get_backend(**backend_settings)
+    all_domains = backend.domains(source_locale)
+    if domain and not domain in all_domains:
+        print("Domain '{}' not found".format(domain))
+        return False
+    domains = domain and [domain] or all_domains
+    all_locales = [lc for lc in backend.locales() if lc != source_locale]
+    locales = locale and [locale] or all_locales
+
+    diff_format = "{lc} locale has {count} untranslated messages"
+    for domain in domains:
+        header = "Translation status for {}".format(domain)
+        print(header)
+        print("=" * len(header))
+        print("")
+        avail_keys = []
+        messages = {}
+        for res in backend.resources(source_locale, domain):
+            messages[res.name] = res.text
+        avail_keys = frozenset(messages.keys())
+        for locale in locales:
+            translated_keys = frozenset([r.name for r in backend.resources(locale, domain)])
+            diff = avail_keys - translated_keys
+            if len(diff) == 0:
+                continue
+            print(diff_format.format(lc=locale, count=len(diff)))
+            if verbose:
+                for key in diff:
+                    print(u"    - {} ({})".format(key, messages[key]))
+                print("")
 
 
+#TODO Make this extension
 def xmllint(settings, url="default", locale=None, *args, **kwargs):
     from lxml.etree import XML
     url = settings.get('urls', url) or url
@@ -338,12 +359,42 @@ def xmllint(settings, url="default", locale=None, *args, **kwargs):
     for res in service.resources(project, locale or source_locale):
         # check for validity
         try:
-            x = XML('<?xml version="1.0" standalone="yes"?><!DOCTYPE html>\n<div>' + res.text + '</div>')
+            XML('<?xml version="1.0" standalone="yes"?><!DOCTYPE html>\n<div>' + res.text + '</div>')
         except Exception as ex:
             #if not ex.message.startswith("Entity"):
             print("-----------------------")
             print(unicode(ex.message))
             print(msg.format(resource=res))
+
+
+def validate(settings, url="default", locale=None, *args, **kwargs):
+    patterns = ["%s", "%d", "{{\s*[a-zA-Z]+\s*}}"]
+    url = settings.get('urls', url) or url
+    project = settings.get("translation", "project")
+    source_locale = settings.get("translation", "source_locale")
+    if settings.has_section('proxy'):
+        proxy_opts = dict(settings.items('proxy'))
+        proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
+    else:
+        proxy = None
+    service = Service(url, proxy=proxy)
+    backend_format = settings.get('translation', 'format')
+    backend_settings = dict(settings.items(backend_format))
+    backend_module = __import__(
+        "localist.{0}".format(backend_format), fromlist=["localist"]
+    )
+    backend = backend_module.get_backend(**backend_settings)
+    for domain in backend.domains(source_locale):
+        # get resources in source_locale from service
+        sources = {}
+        for res in service.resources(project, source_locale, domain):
+            sources[res.id] = res.text
+        # get translations for chozen locale
+        for res in service.resources(project, locale, domain):
+            if not res.id in sources:
+                print("Wut?!!! {} | {}".format(domain, res.name))
+        # check
+        pass
 
 
 def main():
@@ -359,19 +410,28 @@ def main():
     pull_parser.add_argument('-d', '--domain', help="domain to push")
     pull_parser.set_defaults(func=pull)
 
+    status_parser = subparsers.add_parser('status', help=status.__doc__)
+    status_parser.add_argument('-d', '--domain', help="domain to check")
+    status_parser.add_argument('-l', '--locale', help="locale to pull")
+    status_parser.add_argument('-v', '--verbose', action="store_true", help="verbose")
+    status_parser.set_defaults(func=status)
+
     subparsers.add_parser('stats', help=stats.__doc__).set_defaults(func=stats)
     subparsers.add_parser('diff', help=diff.__doc__).set_defaults(func=diff)
 
-    drop_parser = subparsers.add_parser('drop', help=drop.__doc__)
-    drop_parser.add_argument('-d', '--domain', help="domain to delete")
-    drop_parser.add_argument('-l', '--locale', help="locale to delete")
-    drop_parser.set_defaults(func=drop)
-
-    #subparsers.add_parser('duplicates', help=duplicates.__doc__).set_defaults(func=duplicates)
+    # this is a *very* dangerous command
+    #drop_parser = subparsers.add_parser('drop', help=drop.__doc__)
+    #drop_parser.add_argument('-d', '--domain', help="domain to delete")
+    #drop_parser.add_argument('-l', '--locale', help="locale to delete")
+    #drop_parser.set_defaults(func=drop)
 
     lint_parser = subparsers.add_parser('xmllint')
     lint_parser.add_argument('-l', '--locale')
     lint_parser.set_defaults(func=xmllint)
+
+    validation_parser = subparsers.add_parser('validate')
+    validation_parser.add_argument('-l', '--locale')
+    validation_parser.set_defaults(func=validate)
 
     opts = parser.parse_args()
     settings = read_config("localistrc")

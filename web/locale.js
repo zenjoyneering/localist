@@ -261,5 +261,15 @@ var Locale = (function(){
         }
     };
 
+    locales.cs = {
+        name: "Czech",
+        localName: "Česká",
+        code: "cs_CZ",
+        pluralForms: [quantity.ZERO, quantity.ONE, quantity.FEW, quantity.OTHER],
+        plural: function(n){
+            return (n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2; 
+        }
+    };
+
     return Locale;
 })();
