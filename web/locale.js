@@ -267,7 +267,17 @@ var Locale = (function(){
         code: "cs_CZ",
         pluralForms: [quantity.ZERO, quantity.ONE, quantity.FEW, quantity.OTHER],
         plural: function(n){
-            return (n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2; 
+            return (n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;
+        }
+    };
+
+    locales.zh = {
+        name: "Chinese",
+        localName: "中国的",
+        code: "zh_CN",
+        pluralForms: [quantity.ZERO, quantity.OTHER],
+        plural: function(n){
+            return 0;
         }
     };
 

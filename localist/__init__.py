@@ -8,7 +8,15 @@ See docs for more information.
 """
 
 import json
+from lxml.etree import XML, XMLParser
 
+XML_NODE = u"""<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" >
+<body>
+{text}
+</body>"""
+
+XML_PARSER = XMLParser(resolve_entities=False)
 
 class Resource(object):
     """Base localizable resource"""
@@ -75,6 +83,25 @@ class Resource(object):
     def as_dict(self):
         """Return internal state"""
         return self._data
+
+    def is_same_format(self, other, regexps):
+        """Check if resource is same format string as given"""
+        is_same = True
+        for r in regexps:
+            source = r.findall(self.text)
+            target = r.findall(other.text)
+            is_same = is_same and sorted(source) == sorted(target)
+        return is_same
+
+    def is_xml_safe(self):
+        """Check if text content can be used as XML content"""
+        try:
+            XML(XML_NODE.format(text=self.text), XML_PARSER)
+            valid = True
+        except Exception as ex:
+            #print ex
+            valid = False
+        return valid
 
     # Black magic start here:
     def __eq__(self, other):

@@ -4,6 +4,7 @@
 import unittest
 import json
 from localist import Resource
+import re
 
 
 class ResourceTest(unittest.TestCase):
@@ -24,6 +25,11 @@ class ResourceTest(unittest.TestCase):
             u"name": self.name,
             u"project": u"default"
         }
+
+    def create_resource(self, text, name=None):
+        """Utility function for create resource"""
+        return Resource(domain=self.domain, message=text,
+                        name=name or self.name, locale=self.locale)
 
     def test_string(self):
         msg = Resource(
@@ -64,6 +70,49 @@ class ResourceTest(unittest.TestCase):
         res2 = Resource(domain="test", message="msg", locale="en", name="key1")
         res3 = Resource(domain="test", message="msg1", locale="en", name="key1")
         self.assertTrue(res1 != res2 and res2 != res3 and res1 != res3)
+
+    def test_valid_printf_format(self):
+        source = self.create_resource("This is %a source with %s and %d")
+        valid_one = self.create_resource("This is a valid with %d and %s")
+        valid_next = self.create_resource("Just %s and %d %z")
+        formats = [re.compile("%s"), re.compile("%d")]
+        self.assertTrue(valid_one.is_same_format(source, formats) and
+                        valid_next.is_same_format(source, formats))
+
+    def test_invalid_printf_format(self):
+        source = self.create_resource("This is %a source with %s and %d")
+        invalid_one = self.create_resource("This is a valid with %d and %d")
+        invalid_next = self.create_resource("Just % and % %z")
+        formats = [re.compile("%s"), re.compile("%d")]
+        self.assertFalse(invalid_one.is_same_format(source, formats) or
+                         invalid_next.is_same_format(source, formats))
+
+    def test_valid_mustache_format(self):
+        source = self.create_resource("This is a {{resource}} with {{ text }}")
+        valid_one = self.create_resource("Valid {{ text }} for {{resource}}")
+        formats = [re.compile("{{\s*[a-zA-Z]+\s*}}")]
+        self.assertTrue(valid_one.is_same_format(source, formats))
+
+    def test_invalid_mustache_format(self):
+        source = self.create_resource("This is a {{resource}} with {{ text }}")
+        invalid_one = self.create_resource("Invalid {{text}} for resource")
+        invalid_next = self.create_resource("Invalid {{textiy}} for {{ resource}}")
+        formats = [re.compile("{{\s*[a-zA-Z]+\s*}}")]
+        self.assertFalse(invalid_one.is_same_format(source, formats) or
+                         invalid_next.is_same_format(source, formats))
+
+    def test_xml_safety(self):
+        valid = self.create_resource("this is a <br /> valid <p>text</p>")
+        invalid = self.create_resource("<p> bad <b>broken<a></p> entry</a>")
+        self.assertTrue(valid.is_xml_safe() is True and invalid.is_xml_safe() is False)
+
+    def test_xml_with_entities(self):
+        valid = self.create_resource("this is a &nbsp; &#37;")
+        self.assertTrue(valid.is_xml_safe())
+
+    def test_xml_attr_placeholder(self):
+        valid = self.create_resource('<a href="{{ url }}" title="%s">{{test}}</a>')
+        self.assertTrue(valid.is_xml_safe())
 
 
 if __name__ == "__main__":

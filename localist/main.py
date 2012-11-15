@@ -367,8 +367,10 @@ def xmllint(settings, url="default", locale=None, *args, **kwargs):
             print(msg.format(resource=res))
 
 
-def validate(settings, url="default", locale=None, *args, **kwargs):
-    patterns = ["%s", "%d", "{{\s*[a-zA-Z]+\s*}}"]
+def validate(settings, url="default", locale=None, domain=None, *args, **kwargs):
+    """Validate messages as xml and agains placeholders, defined by regexp"""
+    import re
+    patterns = [re.compile("%s"), re.compile("%d"), re.compile("{{\s*[$]?[a-zA-Z]+\s*}}")]
     url = settings.get('urls', url) or url
     project = settings.get("translation", "project")
     source_locale = settings.get("translation", "source_locale")
@@ -378,23 +380,60 @@ def validate(settings, url="default", locale=None, *args, **kwargs):
     else:
         proxy = None
     service = Service(url, proxy=proxy)
-    backend_format = settings.get('translation', 'format')
-    backend_settings = dict(settings.items(backend_format))
-    backend_module = __import__(
-        "localist.{0}".format(backend_format), fromlist=["localist"]
-    )
-    backend = backend_module.get_backend(**backend_settings)
-    for domain in backend.domains(source_locale):
-        # get resources in source_locale from service
-        sources = {}
-        for res in service.resources(project, source_locale, domain):
-            sources[res.id] = res.text
-        # get translations for chozen locale
-        for res in service.resources(project, locale, domain):
-            if not res.id in sources:
-                print("Wut?!!! {} | {}".format(domain, res.name))
-        # check
-        pass
+    #backend_format = settings.get('translation', 'format')
+    #backend_settings = dict(settings.items(backend_format))
+    #backend_module = __import__(
+    #    "localist.{0}".format(backend_format), fromlist=["localist"]
+    #)
+    #backend = backend_module.get_backend(**backend_settings)
+    msg_format = u" - Template miss in {res.domain}: {res.name} => {res.text}"
+    xml_invalid_format = u" - Broken XML in {res.domain}: {res.name} = {res.text}"
+    sources = {}
+    # get resources in source_locale from service
+    for res in service.resources(project, source_locale, domain):
+        sources[res._id] = res
+    # get translations for chozen locale
+    failures = 0
+    for res in service.resources(project, locale, domain):
+        if not res.source['id'] in sources:
+            print("Wut?!!! {} | {}".format(domain, res.name))
+            continue
+        if not res.is_same_format(sources[res.source['id']], patterns):
+            print(msg_format.format(res=res))
+            failures += 1
+        if not res.is_xml_safe():
+            print(xml_invalid_format.format(res=res))
+            failures += 1
+    print("------------------")
+    print("{} failures".format(failures))
+
+
+def check(settings, url="default", locale=None, *args, **kwargs):
+    """Count all translation duplicates"""
+    url = settings.get('urls', url) or url
+    project = settings.get("translation", "project")
+    source_locale = settings.get("translation", "source_locale")
+    if settings.has_section('proxy'):
+        proxy_opts = dict(settings.items('proxy'))
+        proxy = (proxy_opts.get('host'), proxy_opts.get('port', 80))
+    else:
+        proxy = None
+    service = Service(url, proxy=proxy)
+    texts = {}
+    sources = {}
+    for res in service.resources(project, source_locale):
+        sources[res._id] = []
+        texts[res._id] = res.text
+    for res in service.resources(project, locale):
+        sources[res.source['id']].append(res._id)
+        texts[res._id] = res.text
+    for (k, v) in sources.items():
+        if len(v) > 1:
+            print("Mutiple translations for {}:".format(k))
+            print(texts[k])
+            for i in v:
+                print(u" *. {}\n  {}\n".format(i, texts[i]))
+            print("---------------------\n")
 
 
 def main():
@@ -431,7 +470,12 @@ def main():
 
     validation_parser = subparsers.add_parser('validate')
     validation_parser.add_argument('-l', '--locale')
+    validation_parser.add_argument('-d', '--domain')
     validation_parser.set_defaults(func=validate)
+
+    chk_parser = subparsers.add_parser('check')
+    chk_parser.add_argument('-l', '--locale')
+    chk_parser.set_defaults(func=check)
 
     opts = parser.parse_args()
     settings = read_config("localistrc")
