@@ -8,7 +8,6 @@ See docs for more information.
 """
 
 import json
-from lxml.etree import XML, XMLParser
 
 XML_NODE = u"""<?xml version="1.0"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" >
@@ -16,7 +15,6 @@ XML_NODE = u"""<?xml version="1.0"?>
 {text}
 </body>"""
 
-XML_PARSER = XMLParser(resolve_entities=False)
 
 class Resource(object):
     """Base localizable resource"""
@@ -95,6 +93,8 @@ class Resource(object):
 
     def is_xml_safe(self):
         """Check if text content can be used as XML content"""
+        from lxml.etree import XML, XMLParser
+        XML_PARSER = XMLParser(resolve_entities=False)
         try:
             XML(XML_NODE.format(text=self.text), XML_PARSER)
             valid = True
