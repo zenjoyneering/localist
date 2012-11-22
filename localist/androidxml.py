@@ -19,13 +19,13 @@ XML_START = """<?xml version="1.0" encoding="utf-8"?>
 
 XML_END = """</resources>"""
 
-XML_STRING = u"""  <string name="{resource.name}">{resource.text}</string>\n"""
+XML_STRING = u"""    <string name="{resource.name}">{resource.text}</string>\n"""
 
-XML_PLURALS_START = u"""  <plurals name="{resource.name}">\n"""
+XML_PLURALS_START = u"""    <plurals name="{resource.name}">\n"""
 
-XML_PLURALS_ITEM = u"""    <item quantity="{quantity}">{text}</item>\n"""
+XML_PLURALS_ITEM = u"""        <item quantity="{quantity}">{text}</item>\n"""
 
-XML_PLURALS_END = """  </plurals>\n"""
+XML_PLURALS_END = """    </plurals>\n"""
 
 
 def plurals_to_dict(node):
