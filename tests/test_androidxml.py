@@ -49,7 +49,7 @@ class AndroidXMLTest(unittest.TestCase):
         # write predefinded messages
         msg_in = Resource(
             domain="strings-fresh",
-            message="translated",
+            message="translated ' one",
             name="fresh_string_one",
             project="test",
             locale="ru"

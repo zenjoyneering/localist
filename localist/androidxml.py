@@ -8,6 +8,10 @@ import os.path
 import glob
 from localist import Resource
 from lxml import etree
+from xml.sax.saxutils import escape
+
+
+APOS = {"'": "\\'"}
 
 XML_START = """<?xml version="1.0" encoding="utf-8"?>
 <resources>
@@ -112,11 +116,13 @@ class AndroidXML(object):
                 for (quantity, text) in resource.plurals.items():
                     xml.write(
                         XML_PLURALS_ITEM.format(
-                            quantity=quantity, text=text
+                            quantity=quantity, text=escape(text, APOS)
                         ).encode("utf-8")
                     )
                 xml.write(XML_PLURALS_END)
             else:
+                # quoteattr text in resource
+                resource.message = escape(resource.text, APOS)
                 xml.write(XML_STRING.format(resource=resource).encode("utf-8"))
         xml.write(XML_END)
         xml.close()
