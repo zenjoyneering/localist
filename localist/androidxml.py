@@ -114,7 +114,7 @@ class AndroidXML(object):
                     XML_PLURALS_START.format(resource=resource).encode("utf-8")
                 )
                 for (quantity, text) in resource.plurals.items():
-                    //Write only nonempty plural forms
+                    #Write only nonempty plural forms
                     if text != "":
                         xml.write(
                             XML_PLURALS_ITEM.format(
