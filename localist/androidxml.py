@@ -115,7 +115,7 @@ class AndroidXML(object):
                 )
                 for (quantity, text) in resource.plurals.items():
                     # Write only nonempty plural forms
-                    if text != "":
+                    if text.stip():
                         xml.write(
                             XML_PLURALS_ITEM.format(
                                 quantity=quantity, text=escape(text, APOS)
