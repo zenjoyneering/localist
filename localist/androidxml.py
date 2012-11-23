@@ -114,11 +114,13 @@ class AndroidXML(object):
                     XML_PLURALS_START.format(resource=resource).encode("utf-8")
                 )
                 for (quantity, text) in resource.plurals.items():
-                    xml.write(
-                        XML_PLURALS_ITEM.format(
-                            quantity=quantity, text=escape(text, APOS)
-                        ).encode("utf-8")
-                    )
+                    //Write only nonempty plural forms
+                    if text != "":
+                        xml.write(
+                            XML_PLURALS_ITEM.format(
+                                quantity=quantity, text=escape(text, APOS)
+                            ).encode("utf-8")
+                        )
                 xml.write(XML_PLURALS_END)
             else:
                 # quoteattr text in resource
