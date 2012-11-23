@@ -126,7 +126,7 @@ var Locale = (function(){
     locales.ko = {
         name: "Korean",
         localName: "한국의",
-        code: "ko_KO",
+        code: "ko_KR",
         pluralForms: [quantity.ZERO, quantity.OTHER],
         plural: function(n){
             return 0;
